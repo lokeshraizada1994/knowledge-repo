@@ -76,7 +76,7 @@ def _transcript_via_ytdlp(url: str) -> str | None:
                 return None
 
             print("[YouTube] Transcribing audio with Whisper...")
-            model = WhisperModel("base", device="cpu", compute_type="int8")
+            model = WhisperModel("tiny", device="cpu", compute_type="int8")
             segments, _ = model.transcribe(audio_file, beam_size=5)
             transcript = " ".join(seg.text for seg in segments)
             return transcript if len(transcript) > 100 else None

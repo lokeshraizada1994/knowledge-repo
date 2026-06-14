@@ -34,7 +34,7 @@ def _download_via_ytdlp(url: str, tmp_path: str) -> str:
 
 
 def extract_podcast(url: str = None, attachment: dict = None) -> dict:
-    model = WhisperModel("base", device="cpu", compute_type="int8")
+    model = WhisperModel("tiny", device="cpu", compute_type="int8")
 
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         tmp_path = tmp.name
