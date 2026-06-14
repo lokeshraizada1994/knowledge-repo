@@ -1,0 +1,105 @@
+{
+  "metadata": {
+    "title": "Access Denied",
+    "source_type": "article",
+    "source_url": "https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai?cid=eml-web",
+    "author": "Unknown",
+    "date_processed": "2026-06-14",
+    "estimated_duration": "~1 min read",
+    "tags": [
+      "access-denied",
+      "403-error",
+      "unreadable-content",
+      "McKinsey",
+      "AI"
+    ]
+  },
+  "executive_summary": {
+    "content": [
+      "Bullet 1 — The source URL returned a 403 Forbidden HTTP error; no article content was retrieved.",
+      "Bullet 2 — The intended article appears to be McKinsey QuantumBlack's 'State of AI' report, but its content is entirely inaccessible.",
+      "Bullet 3 — No knowledge extraction is possible because the payload contains only an error message, not article text.",
+      "Bullet 4 — The error references Akamai EdgeSuite, suggesting a CDN-level access block rather than a paywall or login gate.",
+      "Bullet 5 — N/A — no substantive content available to summarize."
+    ],
+    "needs_visual": false
+  },
+  "top_5_takeaways": {
+    "content": [
+      {
+        "point": "N/A — insufficient content in source: only a 403 Forbidden error message was returned, no article body.",
+        "inferred": false
+      },
+      {
+        "point": "N/A — insufficient content in source.",
+        "inferred": false
+      },
+      {
+        "point": "N/A — insufficient content in source.",
+        "inferred": false
+      },
+      {
+        "point": "N/A — insufficient content in source.",
+        "inferred": false
+      },
+      {
+        "point": "N/A — insufficient content in source.",
+        "inferred": false
+      }
+    ],
+    "needs_visual": false
+  },
+  "actionables": {
+    "content": [
+      "Retry accessing the URL directly in a browser to check if the block is IP- or session-specific.",
+      "Search for the McKinsey 'State of AI' report via McKinsey's homepage or a direct Google search to find an accessible version.",
+      "Check whether a login, VPN, or institutional access is required to view this McKinsey QuantumBlack insight."
+    ],
+    "needs_visual": false
+  },
+  "critique": {
+    "strengths": [
+      "N/A — no content was delivered; there is nothing to evaluate for quality or usefulness."
+    ],
+    "weaknesses": [
+      "The source completely failed to load, returning a 403 Forbidden error with zero article content.",
+      "The submission included a broken URL as the sole input, making knowledge extraction entirely impossible."
+    ],
+    "missing": [
+      "The entire article body is missing — specifically, McKinsey's 'State of AI' findings, data, frameworks, and recommendations that were presumably the intended content."
+    ],
+    "needs_visual": false
+  },
+  "thinking_framework": {
+    "content": "N/A — no article content was present; only a 403 HTTP error message was returned, containing no frameworks or analytical structures.",
+    "framework_name": null,
+    "needs_visual": false
+  },
+  "knowledge_insights": {
+    "content": "N/A — no article content was present; the URL returned a 403 Forbidden error with no substantive text to extract insights from.",
+    "needs_visual": false
+  },
+  "examples_and_stories": {
+    "content": "N/A — no article content was present; only an HTTP error page was returned with no examples or stories.",
+    "needs_visual": false
+  },
+  "limitations_and_challenges": {
+    "content": [
+      "The URL is blocked at the CDN (Akamai EdgeSuite) level with a 403 Forbidden error, preventing any content retrieval.",
+      "No fallback or cached version of the content was provided, making extraction completely impossible."
+    ],
+    "needs_visual": false
+  },
+  "best_practices": {
+    "content": "N/A — no article content was present; the source returned only an access-denied error with no best practices discussed.",
+    "needs_visual": false
+  },
+  "use_cases": {
+    "content": "N/A — no article content was present; the source returned only an access-denied error with no use cases described.",
+    "needs_visual": false
+  },
+  "whats_ahead": {
+    "content": "N/A — no article content was present; the source returned only an access-denied error with no forward-looking statements available.",
+    "needs_visual": false
+  }
+}
