@@ -91,7 +91,11 @@ def _build_blocks(card: dict) -> list:
     # Executive Summary
     blocks.append(_heading("📌 Executive Summary", 2))
     summary = card.get("executive_summary", {}).get("content", "")
-    blocks.append(_callout(summary, "📌"))
+    if isinstance(summary, list):
+        for s in summary:
+            blocks.append(_bulleted(s))
+    else:
+        blocks.append(_callout(summary, "📌"))
     blocks.append(_divider())
 
     # Top 5 Takeaways

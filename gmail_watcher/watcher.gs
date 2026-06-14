@@ -1,24 +1,27 @@
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-var WEBHOOK_URL = "YOUR_RAILWAY_URL/webhook";   // fill in after Step 6 deploy
-var WEBHOOK_SECRET = "YOUR_WEBHOOK_SECRET";      // same as .env WEBHOOK_SECRET
+var WEBHOOK_URL = "https://web-production-b4f63.up.railway.app/webhook";
+var WEBHOOK_SECRET = "YOUR_WEBHOOK_SECRET";  // keep your actual secret here
 var LABEL_NAME = "knowledge-processed";
 // ───────────────────────────────────────────────────────────────────────────
 
 function watchInbox() {
   var label = getOrCreateLabel(LABEL_NAME);
 
-  // Search for unread emails not yet processed
-  var threads = GmailApp.search("is:unread -label:" + LABEL_NAME, 0, 10);
+  // Search ALL emails (read and unread) not yet labelled as processed
+  var threads = GmailApp.search("-label:" + LABEL_NAME, 0, 20);
 
   threads.forEach(function(thread) {
+    // Always label the thread first — prevents reprocessing even if webhook fails
+    thread.addLabel(label);
+    thread.markRead();
+
     var messages = thread.getMessages();
-    var message = messages[messages.length - 1]; // latest message in thread
+    var message = messages[messages.length - 1];
 
     var subject = message.getSubject();
     var body = message.getPlainBody();
     var attachments = [];
 
-    // Handle attachments (PDFs, audio)
     message.getAttachments().forEach(function(att) {
       attachments.push({
         filename: att.getName(),
@@ -47,11 +50,6 @@ function watchInbox() {
       var code = response.getResponseCode();
       Logger.log("Sent: " + subject + " → HTTP " + code);
 
-      if (code === 200) {
-        // Mark as processed so we don't reprocess
-        thread.addLabel(label);
-        thread.markRead();
-      }
     } catch(e) {
       Logger.log("Error sending " + subject + ": " + e.toString());
     }
@@ -66,17 +64,24 @@ function getOrCreateLabel(name) {
   return label;
 }
 
-// Run this once manually to set up the 5-minute trigger
+// Run this once to label all existing emails so they don't get reprocessed
+function labelAllExisting() {
+  var label = getOrCreateLabel(LABEL_NAME);
+  var threads = GmailApp.search("-label:" + LABEL_NAME, 0, 500);
+  threads.forEach(function(thread) {
+    thread.addLabel(label);
+    thread.markRead();
+  });
+  Logger.log("Labelled " + threads.length + " existing threads as processed");
+}
+
 function createTrigger() {
-  // Remove existing triggers first
   ScriptApp.getProjectTriggers().forEach(function(t) {
     ScriptApp.deleteTrigger(t);
   });
-
   ScriptApp.newTrigger("watchInbox")
     .timeBased()
-    .everyMinutes(5)
+    .everyMinutes(1)
     .create();
-
-  Logger.log("Trigger created — watchInbox will run every 5 minutes");
+  Logger.log("Trigger created — watchInbox will run every 1 minute");
 }

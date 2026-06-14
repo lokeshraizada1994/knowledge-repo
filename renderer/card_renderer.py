@@ -44,7 +44,11 @@ def render_card(card: dict) -> str:
 
     # Executive Summary
     summary = card.get("executive_summary", {})
-    summary_html = f"<p>{summary.get('content', '')}</p>"
+    summary_content = summary.get("content", "")
+    if isinstance(summary_content, list):
+        summary_html = "<ul class='summary-list'>" + "".join(f"<li>{s}</li>" for s in summary_content if s) + "</ul>"
+    else:
+        summary_html = f"<p>{summary_content}</p>"
 
     # Top 5 Takeaways
     takeaways = card.get("top_5_takeaways", {}).get("content", [])
@@ -229,6 +233,9 @@ def render_card(card: dict) -> str:
   .use-case-grid {{ display: flex; flex-wrap: wrap; gap: 8px; }}
   .use-case-chip {{ background: var(--surface2); border: 1px solid var(--border);
     border-radius: 8px; padding: 8px 14px; font-size: 12px; color: var(--text); }}
+
+  ul.summary-list {{ padding-left: 20px; }}
+  ul.summary-list li {{ margin-bottom: 8px; color: var(--text); line-height: 1.6; }}
 
   .footer {{ text-align: center; color: var(--text2); font-size: 11px; margin-top: 32px; padding-top: 16px;
     border-top: 1px solid var(--border); }}
