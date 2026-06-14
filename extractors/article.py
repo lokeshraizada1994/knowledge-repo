@@ -1,32 +1,48 @@
 import requests
 from bs4 import BeautifulSoup
 
+# Phrases that indicate a scraper received an error/block page, not real content
+_BLOCK_SIGNALS = [
+    "access denied", "403 forbidden", "enable javascript",
+    "please enable cookies", "verify you are human", "checking your browser",
+    "cloudflare", "captcha", "just a moment", "ddos protection",
+    "this page isn't working", "too many requests", "subscription required",
+    "sign in to read", "create a free account to continue",
+]
+
+
+def _is_blocked_content(text: str) -> bool:
+    """Return True if the extracted text looks like a block/error page."""
+    if not text or len(text.strip()) < 300:
+        return True
+    sample = text[:2000].lower()
+    return sum(1 for s in _BLOCK_SIGNALS if s in sample) >= 2
+
 
 def extract_article(url: str) -> dict:
     # 1. Jina reader — clean markdown, no API key needed
     result = _try_jina(url)
-    if result:
+    if result and not _is_blocked_content(result.get("content", "")):
         return result
 
     # 2. Freedium bypass for Medium paywalls
-    if "medium.com" in url or "medium.com" in url:
+    if "medium.com" in url:
         result = _try_freedium(url)
-        if result:
+        if result and not _is_blocked_content(result.get("content", "")):
             return result
 
     # 3. 12ft.io bypass for CDN-blocked sites
     result = _try_12ft(url)
-    if result:
-        return result
+    if result and not _is_blocked_content(result.get("content", "")):
 
     # 4. Direct scrape
     result = _try_direct(url)
-    if result:
+    if result and not _is_blocked_content(result.get("content", "")):
         return result
 
     # 5. Playwright headless browser (last resort before giving up)
     result = _try_playwright(url)
-    if result:
+    if result and not _is_blocked_content(result.get("content", "")):
         return result
 
     return {
