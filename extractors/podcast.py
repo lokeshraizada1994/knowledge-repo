@@ -14,25 +14,14 @@ def _needs_ytdlp(url: str) -> bool:
     return domain in _YTDLP_DOMAINS
 
 
-def _get_ffmpeg_path() -> str:
-    """Return path to bundled ffmpeg binary (imageio-ffmpeg)."""
-    try:
-        import imageio_ffmpeg
-        return imageio_ffmpeg.get_ffmpeg_exe()
-    except Exception:
-        return "ffmpeg"  # fall back to system ffmpeg if available
-
-
 def _download_via_ytdlp(url: str, tmp_path: str) -> str:
     """Download audio from streaming platforms using yt-dlp. Returns title."""
     import yt_dlp
-    ffmpeg_path = _get_ffmpeg_path()
     ydl_opts = {
         "format": "bestaudio/best",
         "outtmpl": tmp_path.replace(".mp3", ".%(ext)s"),
         "quiet": True,
         "no_warnings": True,
-        "ffmpeg_location": ffmpeg_path,
         "postprocessors": [{
             "key": "FFmpegExtractAudio",
             "preferredcodec": "mp3",

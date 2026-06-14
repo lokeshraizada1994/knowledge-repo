@@ -53,12 +53,6 @@ def _transcript_via_ytdlp(url: str) -> str | None:
         import yt_dlp
         from faster_whisper import WhisperModel
 
-        try:
-            import imageio_ffmpeg
-            ffmpeg_path = imageio_ffmpeg.get_ffmpeg_exe()
-        except Exception:
-            ffmpeg_path = "ffmpeg"
-
         with tempfile.TemporaryDirectory() as tmpdir:
             audio_path = os.path.join(tmpdir, "audio.%(ext)s")
             ydl_opts = {
@@ -66,7 +60,6 @@ def _transcript_via_ytdlp(url: str) -> str | None:
                 "outtmpl": audio_path,
                 "quiet": True,
                 "no_warnings": True,
-                "ffmpeg_location": ffmpeg_path,
                 "extract_audio": True,
             }
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
