@@ -118,93 +118,117 @@ def _update_index(repo, card: dict, folder: str):
 
 def _base_index_html() -> str:
     return """<!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Knowledge Repository</title>
 <style>
-  :root {
+  :root[data-theme="dark"] {
     --bg:#0b0d14; --surface:#13172a; --surface2:#1a1f35;
     --border:#232840; --text:#e8eaf0; --text2:#7b82a8; --text3:#4a5080;
-    --accent:#6366f1; --accent2:#8b5cf6; --green:#22c55e; --yellow:#f59e0b;
+    --accent:#6366f1; --shadow:rgba(0,0,0,0.4);
+    --tag-bg:#1a2040; --tag-color:#818cf8; --tag-border:#2d3464;
+    --topbar-bg:#13172a;
+  }
+  :root[data-theme="light"] {
+    --bg:#f4f5fb; --surface:#ffffff; --surface2:#f0f1f8;
+    --border:#e2e4f0; --text:#1a1d2e; --text2:#6b7280; --text3:#9ca3af;
+    --accent:#6366f1; --shadow:rgba(99,102,241,0.08);
+    --tag-bg:#eef0ff; --tag-color:#4f46e5; --tag-border:#c7d2fe;
+    --topbar-bg:#ffffff;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
-  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; min-height:100vh; }
+  body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; min-height:100vh; transition:background 0.3s,color 0.3s; }
 
-  .topbar { background:var(--surface); border-bottom:1px solid var(--border); padding:16px 32px;
-    display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10; }
-  .logo { font-size:18px; font-weight:800; display:flex; align-items:center; gap:10px; }
-  .logo-icon { font-size:22px; }
+  .topbar { background:var(--topbar-bg); border-bottom:1px solid var(--border); padding:14px 32px;
+    display:flex; align-items:center; justify-content:space-between; position:sticky; top:0; z-index:10;
+    box-shadow:0 1px 12px var(--shadow); }
+  .logo { font-size:17px; font-weight:800; display:flex; align-items:center; gap:10px; }
+  .topbar-right { display:flex; align-items:center; gap:20px; }
   .stats { display:flex; gap:20px; }
   .stat { text-align:center; }
-  .stat-num { font-size:18px; font-weight:800; color:var(--accent); }
-  .stat-label { font-size:10px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; }
+  .stat-num { font-size:17px; font-weight:800; color:var(--accent); }
+  .stat-label { font-size:9px; color:var(--text2); text-transform:uppercase; letter-spacing:1px; }
 
-  .hero { padding:48px 32px 32px; max-width:1200px; margin:0 auto; }
-  .hero h1 { font-size:36px; font-weight:900; margin-bottom:8px; }
+  .theme-toggle { background:var(--surface2); border:1px solid var(--border); border-radius:999px;
+    width:52px; height:28px; cursor:pointer; position:relative; transition:all 0.3s; flex-shrink:0; }
+  .theme-toggle::before { content:''; position:absolute; top:3px; left:3px; width:20px; height:20px;
+    border-radius:50%; background:var(--accent); transition:transform 0.3s; }
+  [data-theme="light"] .theme-toggle::before { transform:translateX(24px); }
+  .theme-icon { position:absolute; top:50%; transform:translateY(-50%); font-size:11px; }
+  .theme-icon.moon { left:6px; }
+  .theme-icon.sun  { right:5px; }
+
+  .insights-link { background:var(--accent); color:#fff; border-radius:8px; padding:7px 14px;
+    font-size:12px; font-weight:700; text-decoration:none; transition:opacity 0.2s; }
+  .insights-link:hover { opacity:0.85; }
+
+  .hero { padding:40px 32px 24px; max-width:1200px; margin:0 auto; }
+  .hero h1 { font-size:32px; font-weight:900; margin-bottom:6px; }
   .hero h1 span { color:var(--accent); }
-  .hero p { color:var(--text2); font-size:15px; margin-bottom:28px; }
+  .hero p { color:var(--text2); font-size:14px; margin-bottom:24px; }
 
-  .controls { display:flex; gap:12px; flex-wrap:wrap; margin-bottom:32px; }
-  .search-wrap { flex:1; min-width:260px; position:relative; }
+  .controls { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:28px; }
+  .search-wrap { flex:1; min-width:240px; position:relative; }
   .search-wrap input { width:100%; background:var(--surface); border:1px solid var(--border);
-    color:var(--text); border-radius:10px; padding:11px 16px 11px 40px; font-size:13px; outline:none;
-    transition:border-color 0.2s; }
+    color:var(--text); border-radius:10px; padding:10px 14px 10px 38px; font-size:13px; outline:none; transition:border-color 0.2s; }
   .search-wrap input:focus { border-color:var(--accent); }
-  .search-icon { position:absolute; left:13px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:14px; }
+  .search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); color:var(--text2); font-size:13px; }
   .filter-btn { background:var(--surface); border:1px solid var(--border); color:var(--text2);
-    border-radius:10px; padding:10px 16px; font-size:12px; cursor:pointer; font-weight:600;
-    transition:all 0.2s; white-space:nowrap; }
+    border-radius:10px; padding:9px 14px; font-size:12px; cursor:pointer; font-weight:600; transition:all 0.2s; white-space:nowrap; }
   .filter-btn:hover, .filter-btn.active { background:var(--accent); border-color:var(--accent); color:#fff; }
 
-  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(340px,1fr)); gap:16px;
+  .grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(320px,1fr)); gap:14px;
     max-width:1200px; margin:0 auto; padding:0 32px 48px; }
 
   .card { background:var(--surface); border:1px solid var(--border); border-radius:14px;
-    padding:20px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; gap:12px; }
-  .card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 32px rgba(99,102,241,0.15); }
+    padding:18px; cursor:pointer; transition:all 0.2s; display:flex; flex-direction:column; gap:10px;
+    box-shadow:0 2px 8px var(--shadow); }
+  .card:hover { border-color:var(--accent); transform:translateY(-2px); box-shadow:0 8px 28px var(--shadow); }
 
   .card-header { display:flex; align-items:flex-start; justify-content:space-between; gap:8px; }
-  .card-icon-type { display:flex; align-items:center; gap:8px; }
-  .card-icon { font-size:20px; }
+  .card-icon-type { display:flex; align-items:center; gap:7px; }
+  .card-icon { font-size:18px; }
   .card-type { font-size:9px; font-weight:700; text-transform:uppercase; letter-spacing:1.5px;
-    color:var(--text2); background:var(--surface2); padding:3px 8px; border-radius:4px; }
+    color:var(--text2); background:var(--surface2); padding:2px 7px; border-radius:4px; }
   .card-date { font-size:10px; color:var(--text3); white-space:nowrap; }
-
   .card-title { font-size:14px; font-weight:700; color:var(--text); line-height:1.4; }
   .card-title a { color:inherit; text-decoration:none; }
   .card-title a:hover { color:var(--accent); }
-
   .card-summary { font-size:12px; color:var(--text2); line-height:1.6; }
-
   .card-footer { display:flex; align-items:center; justify-content:space-between; margin-top:auto; }
   .tags { display:flex; gap:5px; flex-wrap:wrap; }
-  .tag { background:#1a2040; color:#818cf8; border:1px solid #2d3464;
+  .tag { background:var(--tag-bg); color:var(--tag-color); border:1px solid var(--tag-border);
     padding:2px 8px; border-radius:999px; font-size:10px; font-weight:500; }
-  .read-link { font-size:11px; color:var(--accent); text-decoration:none; font-weight:600;
+  .read-link { font-size:11px; color:var(--accent); text-decoration:none; font-weight:700;
     white-space:nowrap; opacity:0; transition:opacity 0.2s; }
   .card:hover .read-link { opacity:1; }
 
-  .empty { text-align:center; padding:80px 32px; color:var(--text2); grid-column:1/-1; }
-  .empty-icon { font-size:48px; margin-bottom:16px; }
-
   @media(max-width:600px) {
-    .topbar { padding:12px 16px; }
-    .hero { padding:24px 16px 16px; }
-    .hero h1 { font-size:24px; }
-    .grid { padding:0 16px 32px; }
+    .topbar { padding:10px 16px; }
+    .hero { padding:20px 16px 16px; }
+    .hero h1 { font-size:22px; }
+    .grid { padding:0 14px 32px; }
     .stats { display:none; }
+    .insights-link span { display:none; }
   }
 </style>
 </head>
 <body>
 
 <div class="topbar">
-  <div class="logo"><span class="logo-icon">📚</span> Knowledge Repository</div>
-  <div class="stats">
-    <div class="stat"><div class="stat-num" id="total-count">0</div><div class="stat-label">Entries</div></div>
-    <div class="stat"><div class="stat-num" id="type-count">0</div><div class="stat-label">Source Types</div></div>
+  <div class="logo">📚 Knowledge Repository</div>
+  <div class="topbar-right">
+    <div class="stats">
+      <div class="stat"><div class="stat-num" id="total-count">0</div><div class="stat-label">Entries</div></div>
+      <div class="stat"><div class="stat-num" id="type-count">0</div><div class="stat-label">Types</div></div>
+    </div>
+    <a class="insights-link" href="insights.html">✨ <span>Insights</span></a>
+    <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
+      <span class="theme-icon moon">🌙</span>
+      <span class="theme-icon sun">☀️</span>
+    </button>
   </div>
 </div>
 
@@ -216,11 +240,11 @@ def _base_index_html() -> str:
       <span class="search-icon">🔍</span>
       <input id="search" type="text" placeholder="Search by title, topic, or tag..." oninput="filterCards()"/>
     </div>
-    <button class="filter-btn active" onclick="filterByType('all', this)">All</button>
-    <button class="filter-btn" onclick="filterByType('youtube', this)">▶️ YouTube</button>
-    <button class="filter-btn" onclick="filterByType('article', this)">📰 Articles</button>
-    <button class="filter-btn" onclick="filterByType('podcast', this)">🎙️ Podcasts</button>
-    <button class="filter-btn" onclick="filterByType('report', this)">📊 Reports</button>
+    <button class="filter-btn active" onclick="filterByType('all',this)">All</button>
+    <button class="filter-btn" onclick="filterByType('youtube',this)">▶️ YouTube</button>
+    <button class="filter-btn" onclick="filterByType('article',this)">📰 Articles</button>
+    <button class="filter-btn" onclick="filterByType('podcast',this)">🎙️ Podcasts</button>
+    <button class="filter-btn" onclick="filterByType('report',this)">📊 Reports</button>
   </div>
 </div>
 
@@ -242,9 +266,7 @@ function updateStats() {
 function filterCards() {
   var q = document.getElementById('search').value.toLowerCase();
   document.querySelectorAll('.card').forEach(c => {
-    var matchText = c.textContent.toLowerCase().includes(q);
-    var matchType = activeType === 'all' || c.dataset.type === activeType;
-    c.style.display = (matchText && matchType) ? '' : 'none';
+    c.style.display = (c.textContent.toLowerCase().includes(q) && (activeType==='all'||c.dataset.type===activeType)) ? '':'none';
   });
 }
 
@@ -254,6 +276,17 @@ function filterByType(type, btn) {
   btn.classList.add('active');
   filterCards();
 }
+
+function toggleTheme() {
+  var html = document.documentElement;
+  var next = html.getAttribute('data-theme') === 'dark' ? 'light' : 'dark';
+  html.setAttribute('data-theme', next);
+  localStorage.setItem('theme', next);
+}
+
+// Restore saved theme
+var saved = localStorage.getItem('theme');
+if (saved) document.documentElement.setAttribute('data-theme', saved);
 
 updateStats();
 </script>
