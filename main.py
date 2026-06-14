@@ -52,9 +52,17 @@ def webhook():
 
         # Step 4: Write to all stores
         github_url = write_to_github(knowledge_card, html_card)
-        notion_url = write_to_notion(knowledge_card, github_url)
+        print(f"[Pipeline] Written to GitHub: {github_url}")
+
+        notion_url = None
+        try:
+            notion_url = write_to_notion(knowledge_card, github_url)
+            print(f"[Pipeline] Written to Notion: {notion_url}")
+        except Exception as notion_err:
+            print(f"[Pipeline] Notion skipped: {notion_err}")
+
         write_to_supabase(knowledge_card, github_url=github_url, notion_url=notion_url)
-        print(f"[Pipeline] Written to Notion, GitHub, Supabase")
+        print(f"[Pipeline] Written to Supabase")
 
         return jsonify({
             "status": "success",
