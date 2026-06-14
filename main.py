@@ -64,7 +64,9 @@ def webhook():
         })
 
     except Exception as e:
+        import traceback
         print(f"[Pipeline] Error: {e}")
+        print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
 
 
