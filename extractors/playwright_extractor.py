@@ -1,21 +1,24 @@
 """Playwright headless browser fallback for blocked articles."""
+import os
 import subprocess
 import sys
 
 
 def _ensure_chromium():
-    """Install Chromium if it's missing (self-healing on Railway)."""
+    """Install Chromium if the binary is missing (self-healing on Railway)."""
     try:
         from playwright.sync_api import sync_playwright
         with sync_playwright() as p:
-            # Quick check — will raise if binary missing
-            p.chromium.executable_path
+            path = p.chromium.executable_path
+        if not os.path.exists(path):
+            raise FileNotFoundError(path)
     except Exception:
-        print("[Playwright] Chromium missing — installing now...")
+        print("[Playwright] Chromium missing — installing now (this takes ~60s)...")
         subprocess.run(
             [sys.executable, "-m", "playwright", "install", "chromium", "--with-deps"],
-            check=False, capture_output=False,
+            check=False,
         )
+        print("[Playwright] Chromium install complete.")
 
 
 def extract_with_playwright(url: str) -> str | None:
