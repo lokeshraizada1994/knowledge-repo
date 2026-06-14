@@ -42,8 +42,16 @@ def webhook():
         content = extract_content(email_body, email_subject, attachments)
         print(f"[Pipeline] Content extracted — type: {content['type']}")
 
-        # Detect complete extraction failure (all scrapers returned None)
-        if not content.get("content"):
+        # Detect complete extraction failure
+        raw_content = content.get("content") or ""
+        raw_title = (content.get("title") or "").lower()
+        extraction_failed = (
+            not raw_content
+            or "access denied" in raw_title
+            or "403" in raw_title
+            or len(raw_content.strip()) < 200
+        )
+        if extraction_failed:
             print("[Pipeline] All extraction methods failed — creating Drive pending doc")
             drive_url = _create_drive_pending(
                 url=content.get("source_url", ""),

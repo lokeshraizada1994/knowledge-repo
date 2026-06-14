@@ -1,13 +1,32 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Phrases that indicate a scraper received an error/block page, not real content
-_BLOCK_SIGNALS = [
-    "access denied", "403 forbidden", "enable javascript",
-    "please enable cookies", "verify you are human", "checking your browser",
-    "cloudflare", "captcha", "just a moment", "ddos protection",
-    "this page isn't working", "too many requests", "subscription required",
-    "sign in to read", "create a free account to continue",
+# Any single one of these is enough to reject the content
+_HARD_BLOCK_SIGNALS = [
+    "access denied",
+    "403 forbidden",
+    "verify you are human",
+    "checking your browser",
+    "ddos protection by",
+    "enable javascript and cookies",
+    "just a moment...",
+    "captcha",
+    "ray id",          # Cloudflare Ray ID footer
+    "subscription required",
+    "sign in to read",
+    "create a free account to continue",
+    "this content is for subscribers",
+    "please enable cookies",
+]
+
+# Two or more of these together also signal a block page
+_SOFT_BLOCK_SIGNALS = [
+    "cloudflare",
+    "enable javascript",
+    "too many requests",
+    "this page isn't working",
+    "403",
+    "forbidden",
 ]
 
 
@@ -15,8 +34,14 @@ def _is_blocked_content(text: str) -> bool:
     """Return True if the extracted text looks like a block/error page."""
     if not text or len(text.strip()) < 300:
         return True
-    sample = text[:2000].lower()
-    return sum(1 for s in _BLOCK_SIGNALS if s in sample) >= 2
+    sample = text[:3000].lower()
+    # Any single hard signal is enough
+    if any(s in sample for s in _HARD_BLOCK_SIGNALS):
+        return True
+    # Two or more soft signals together
+    if sum(1 for s in _SOFT_BLOCK_SIGNALS if s in sample) >= 2:
+        return True
+    return False
 
 
 def extract_article(url: str) -> dict:
