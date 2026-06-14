@@ -1,6 +1,6 @@
 import os
 import json
-from supabase import create_client, ClientOptions
+from supabase import create_client
 
 _client = None
 
@@ -13,7 +13,7 @@ def _get_client():
     key = os.getenv("SUPABASE_SECRET_KEY", "").strip()
     if not url or not key:
         raise ValueError(f"Supabase config missing — URL={bool(url)} KEY={bool(key)}")
-    _client = create_client(url, key, options=ClientOptions(auto_refresh_token=False, persist_session=False))
+    _client = create_client(url, key)
     return _client
 
 
