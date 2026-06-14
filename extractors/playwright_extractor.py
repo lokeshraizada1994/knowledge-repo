@@ -1,4 +1,21 @@
 """Playwright headless browser fallback for blocked articles."""
+import subprocess
+import sys
+
+
+def _ensure_chromium():
+    """Install Chromium if it's missing (self-healing on Railway)."""
+    try:
+        from playwright.sync_api import sync_playwright
+        with sync_playwright() as p:
+            # Quick check — will raise if binary missing
+            p.chromium.executable_path
+    except Exception:
+        print("[Playwright] Chromium missing — installing now...")
+        subprocess.run(
+            [sys.executable, "-m", "playwright", "install", "chromium", "--with-deps"],
+            check=False, capture_output=False,
+        )
 
 
 def extract_with_playwright(url: str) -> str | None:
@@ -7,6 +24,8 @@ def extract_with_playwright(url: str) -> str | None:
         from playwright.sync_api import sync_playwright
     except ImportError:
         return None
+
+    _ensure_chromium()
 
     try:
         with sync_playwright() as p:
