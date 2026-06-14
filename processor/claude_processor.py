@@ -93,9 +93,15 @@ def process_content(content: dict) -> dict:
     author = content.get("author")
     duration = content.get("duration")
 
-    # Truncate very long content to fit context window (~100k chars max)
-    if len(raw_content) > 80000:
-        raw_content = raw_content[:80000] + "\n\n[Content truncated for processing]"
+    # Truncate content to avoid Claude's response being cut off.
+    # 20k chars of input leaves plenty of room for the JSON output.
+    if len(raw_content) > 20000:
+        # Keep first 15k (intro/body) + last 5k (conclusions) for reports
+        raw_content = (
+            raw_content[:15000]
+            + "\n\n[... middle section truncated ...]\n\n"
+            + raw_content[-5000:]
+        )
 
     user_message = f"""SOURCE TYPE: {source_type}
 TITLE: {title}
@@ -110,7 +116,7 @@ Extract the full knowledge card from this content following all rules."""
 
     response = client.messages.create(
         model="claude-sonnet-4-6",
-        max_tokens=4096,
+        max_tokens=8000,
         system=SYSTEM_PROMPT,
         messages=[{"role": "user", "content": user_message}]
     )
@@ -121,6 +127,14 @@ Extract the full knowledge card from this content following all rules."""
     if raw_json.startswith("```"):
         raw_json = raw_json.split("\n", 1)[1]
         raw_json = raw_json.rsplit("```", 1)[0]
+
+    # Guard against truncated JSON (stop_reason == max_tokens)
+    stop_reason = response.stop_reason
+    if stop_reason == "max_tokens":
+        raise ValueError(
+            "Claude response was truncated — content may be too long. "
+            f"stop_reason={stop_reason}"
+        )
 
     knowledge_card = json.loads(raw_json)
 
