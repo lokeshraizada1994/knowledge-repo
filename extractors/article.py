@@ -71,6 +71,11 @@ def extract_article(url: str) -> dict:
     if result and not _is_blocked_content(result.get("content", "")):
         return result
 
+    # 6. Last resort: extract whatever meta/og tags exist even on blocked pages
+    result = _try_meta_extraction(url)
+    if result:
+        return result
+
     return {
         "type": "article",
         "title": url,
@@ -193,6 +198,90 @@ def _build_result(url: str, content: str, title: str = None) -> dict:
         "source_url": url,
         "duration": _estimate_read_time(content),
     }
+
+
+def _try_meta_extraction(url: str) -> dict | None:
+    """
+    Last resort: fetch the raw HTML and extract whatever is in <head> meta tags.
+    Even sites that block scraping usually return og:title, og:description,
+    JSON-LD structured data, and sometimes a preview paragraph in the HTML.
+    Returns a partial content dict flagged as [PARTIAL] so Claude knows to note limitations.
+    """
+    try:
+        resp = requests.get(url, timeout=15, headers={
+            "User-Agent": "Mozilla/5.0 (compatible; KnowledgeBot/1.0)"
+        })
+        soup = BeautifulSoup(resp.text, "html.parser")
+
+        # og: and twitter: meta tags
+        meta_fields = {}
+        for tag in soup.find_all("meta"):
+            prop = tag.get("property") or tag.get("name") or ""
+            content = tag.get("content", "").strip()
+            if content and any(k in prop.lower() for k in ["og:", "twitter:", "description", "author", "keywords"]):
+                meta_fields[prop] = content
+
+        # JSON-LD structured data
+        import json as _json
+        json_ld_texts = []
+        for script in soup.find_all("script", type="application/ld+json"):
+            try:
+                data = _json.loads(script.string or "")
+                if isinstance(data, dict):
+                    for field in ["description", "articleBody", "abstract", "text"]:
+                        if data.get(field):
+                            json_ld_texts.append(data[field])
+                    if data.get("name"):
+                        meta_fields.setdefault("og:title", data["name"])
+                    if data.get("author"):
+                        author = data["author"]
+                        if isinstance(author, dict):
+                            meta_fields.setdefault("author", author.get("name", ""))
+            except Exception:
+                pass
+
+        title = (
+            meta_fields.get("og:title")
+            or meta_fields.get("twitter:title")
+            or (soup.find("title") and soup.find("title").get_text(strip=True))
+            or url
+        )
+        description = (
+            meta_fields.get("og:description")
+            or meta_fields.get("twitter:description")
+            or meta_fields.get("description")
+            or ""
+        )
+        author = meta_fields.get("author") or meta_fields.get("article:author") or None
+        keywords = meta_fields.get("keywords") or meta_fields.get("article:tag") or ""
+
+        parts = []
+        if description:
+            parts.append(f"Page description: {description}")
+        if keywords:
+            parts.append(f"Keywords/topics: {keywords}")
+        parts.extend(json_ld_texts)
+
+        content = "\n\n".join(parts)
+        if not content or len(content) < 80:
+            return None
+
+        content = (
+            "[PARTIAL CONTENT — site blocked full extraction. "
+            "Only meta tags and structured data were accessible. "
+            "Summarise only what is explicitly stated below.]\n\n" + content
+        )
+
+        return {
+            "type": "article",
+            "title": title,
+            "author": author,
+            "content": content,
+            "source_url": url,
+            "duration": None,
+        }
+    except Exception:
+        return None
 
 
 def _extract_title_from_markdown(text: str) -> str | None:

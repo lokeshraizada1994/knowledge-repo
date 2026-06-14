@@ -7,6 +7,9 @@ from extractors.pdf import extract_pdf
 YOUTUBE_PATTERN = re.compile(
     r"(https?://)?(www\.)?(youtube\.com/watch\?v=|youtu\.be/)[\w-]+"
 )
+STREAMING_PATTERN = re.compile(
+    r"https?://(www\.)?(soundcloud\.com|open\.spotify\.com|podcasts\.apple\.com|anchor\.fm)/"
+)
 PODCAST_EXTENSIONS = (".mp3", ".mp4", ".m4a", ".wav", ".ogg")
 PDF_EXTENSION = ".pdf"
 
@@ -86,6 +89,9 @@ def extract_content(email_body: str, subject: str, attachments: list) -> dict:
 
     if YOUTUBE_PATTERN.search(url):
         return extract_youtube(url)
+
+    if STREAMING_PATTERN.search(url):
+        return extract_podcast(url=url)
 
     if any(url.lower().endswith(ext) for ext in PODCAST_EXTENSIONS):
         return extract_podcast(url=url)

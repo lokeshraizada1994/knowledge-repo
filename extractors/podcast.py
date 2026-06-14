@@ -3,6 +3,34 @@ import tempfile
 import requests
 from faster_whisper import WhisperModel
 
+# Streaming platforms that need yt-dlp to download
+_YTDLP_DOMAINS = {"soundcloud.com", "open.spotify.com", "podcasts.apple.com", "anchor.fm"}
+
+
+def _needs_ytdlp(url: str) -> bool:
+    if not url:
+        return False
+    domain = url.split("//")[-1].split("/")[0].replace("www.", "")
+    return domain in _YTDLP_DOMAINS
+
+
+def _download_via_ytdlp(url: str, tmp_path: str) -> str:
+    """Download audio from streaming platforms using yt-dlp. Returns title."""
+    import yt_dlp
+    ydl_opts = {
+        "format": "bestaudio/best",
+        "outtmpl": tmp_path.replace(".mp3", ".%(ext)s"),
+        "quiet": True,
+        "no_warnings": True,
+        "postprocessors": [{
+            "key": "FFmpegExtractAudio",
+            "preferredcodec": "mp3",
+        }],
+    }
+    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+        info = ydl.extract_info(url, download=True)
+        return info.get("title") or info.get("track") or "Podcast"
+
 
 def extract_podcast(url: str = None, attachment: dict = None) -> dict:
     model = WhisperModel("base", device="cpu", compute_type="int8")
@@ -15,6 +43,14 @@ def extract_podcast(url: str = None, attachment: dict = None) -> dict:
             audio_data = base64.b64decode(attachment["data"])
             tmp.write(audio_data)
             filename = attachment.get("filename", "podcast")
+        elif url and _needs_ytdlp(url):
+            filename = _download_via_ytdlp(url, tmp_path)
+            # yt-dlp writes its own file; find it
+            base = tmp_path.replace(".mp3", "")
+            for ext in [".mp3", ".m4a", ".webm", ".opus"]:
+                if os.path.exists(base + ext):
+                    tmp_path = base + ext
+                    break
         elif url:
             resp = requests.get(url, timeout=60, stream=True)
             for chunk in resp.iter_content(chunk_size=8192):
