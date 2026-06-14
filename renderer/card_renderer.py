@@ -90,7 +90,8 @@ def render_card(card: dict) -> str:
     if fw_na:
         fw_html = f"<p class='na-text'>{fw_content}</p>"
     else:
-        fw_html = f"{'<div class=\"fw-name\">'+fw_name+'</div>' if fw_name else ''}<p>{fw_content}</p>"
+        fw_name_html = f"<div class='fw-name'>{fw_name}</div>" if fw_name else ""
+        fw_html = f"{fw_name_html}<p>{fw_content}</p>"
 
     # Knowledge Insights
     insights = card.get("knowledge_insights", {}).get("content", "")
