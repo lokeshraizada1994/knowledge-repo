@@ -34,6 +34,7 @@ def extract_article(url: str) -> dict:
     # 3. 12ft.io bypass for CDN-blocked sites
     result = _try_12ft(url)
     if result and not _is_blocked_content(result.get("content", "")):
+        return result
 
     # 4. Direct scrape
     result = _try_direct(url)
