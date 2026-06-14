@@ -38,19 +38,34 @@ def webhook():
     print(f"[Pipeline] New email received: {email_subject}")
 
     try:
-        # Step 1: Extract content from URL/attachment
+        # Step 1: Extract content
         content = extract_content(email_body, email_subject, attachments)
         print(f"[Pipeline] Content extracted — type: {content['type']}")
+
+        # Detect complete extraction failure (all scrapers returned None)
+        if not content.get("content"):
+            print("[Pipeline] All extraction methods failed — creating Drive pending doc")
+            drive_url = _create_drive_pending(
+                url=content.get("source_url", ""),
+                title=content.get("title", email_subject),
+                subject=email_subject,
+            )
+            return jsonify({
+                "status": "pending",
+                "reason": "Content extraction failed — site blocked all scrapers",
+                "drive_doc": drive_url,
+                "action": "Open the Google Doc, paste article text, export as PDF, re-email as attachment",
+            })
 
         # Step 2: Process with Claude
         knowledge_card = process_content(content)
         print(f"[Pipeline] Knowledge card generated")
 
-        # Step 3: Render visual HTML card
+        # Step 3: Render HTML card
         html_card = render_card(knowledge_card)
         print(f"[Pipeline] HTML card rendered")
 
-        # Step 4: Write to all stores
+        # Step 4: Write to stores (GitHub is primary; others are non-blocking)
         github_url = write_to_github(knowledge_card, html_card)
         print(f"[Pipeline] Written to GitHub: {github_url}")
 
@@ -67,12 +82,11 @@ def webhook():
         except Exception as sb_err:
             print(f"[Pipeline] Supabase skipped: {sb_err}")
 
-        # Return 200 as long as GitHub succeeded — prevents Gmail watcher retrying
         return jsonify({
             "status": "success",
             "title": knowledge_card.get("metadata", {}).get("title"),
             "notion_url": notion_url,
-            "github_url": github_url
+            "github_url": github_url,
         })
 
     except Exception as e:
@@ -80,6 +94,15 @@ def webhook():
         print(f"[Pipeline] Error: {e}")
         print(traceback.format_exc())
         return jsonify({"error": str(e)}), 500
+
+
+def _create_drive_pending(url: str, title: str, subject: str) -> str | None:
+    try:
+        from writers.google_drive_writer import write_pending_doc
+        return write_pending_doc(url=url, title=title, subject=subject)
+    except Exception as e:
+        print(f"[Pipeline] Drive pending doc failed: {e}")
+        return None
 
 
 if __name__ == "__main__":

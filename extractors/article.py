@@ -1,69 +1,135 @@
 import requests
 from bs4 import BeautifulSoup
 
-# Ordered list of proxy services to try when a site blocks direct access
-_BYPASS_PROXIES = [
-    lambda u: f"https://12ft.io/proxy?q={u}",
-    lambda u: f"https://r.jina.ai/{u}",  # retry Jina via bypass path
-]
-
 
 def extract_article(url: str) -> dict:
-    # Try Jina reader first — returns clean markdown, no API key needed
-    jina_url = f"https://r.jina.ai/{url}"
-    try:
-        resp = requests.get(jina_url, timeout=20, headers={"Accept": "text/plain"})
-        if resp.status_code == 200 and len(resp.text) > 200:
-            content = resp.text
-            title = _extract_title_from_markdown(content) or url
-            return {
-                "type": "article",
-                "title": title,
-                "author": None,
-                "content": content,
-                "source_url": url,
-                "duration": _estimate_read_time(content),
-            }
-        jina_blocked = resp.status_code in (403, 429, 451)
-    except Exception:
-        jina_blocked = True
+    # 1. Jina reader — clean markdown, no API key needed
+    result = _try_jina(url)
+    if result:
+        return result
 
-    # If Jina was blocked, try 12ft.io bypass before direct scrape
-    if jina_blocked:
-        result = _try_bypass(url)
+    # 2. Freedium bypass for Medium paywalls
+    if "medium.com" in url or "medium.com" in url:
+        result = _try_freedium(url)
         if result:
             return result
 
-    # Fallback: direct scrape with BeautifulSoup
+    # 3. 12ft.io bypass for CDN-blocked sites
+    result = _try_12ft(url)
+    if result:
+        return result
+
+    # 4. Direct scrape
+    result = _try_direct(url)
+    if result:
+        return result
+
+    # 5. Playwright headless browser (last resort before giving up)
+    result = _try_playwright(url)
+    if result:
+        return result
+
+    return {
+        "type": "article",
+        "title": url,
+        "author": None,
+        "content": None,  # None signals complete failure to main.py
+        "source_url": url,
+        "duration": None,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Individual scrapers
+# ---------------------------------------------------------------------------
+
+def _try_jina(url: str) -> dict | None:
+    try:
+        resp = requests.get(
+            f"https://r.jina.ai/{url}",
+            timeout=20,
+            headers={"Accept": "text/plain"},
+        )
+        if resp.status_code == 200 and len(resp.text) > 200:
+            content = resp.text
+            return _build_result(url, content, _extract_title_from_markdown(content))
+    except Exception:
+        pass
+    return None
+
+
+def _try_freedium(url: str) -> dict | None:
+    """Bypass Medium paywall via freedium.cfd."""
+    try:
+        bypass_url = f"https://freedium.cfd/{url}"
+        resp = requests.get(bypass_url, timeout=20, headers={
+            "User-Agent": "Mozilla/5.0 (compatible; KnowledgeBot/1.0)"
+        })
+        if resp.status_code == 200:
+            return _parse_html(resp.text, url)
+    except Exception:
+        pass
+    return None
+
+
+def _try_12ft(url: str) -> dict | None:
+    """Bypass CDN/paywall via 12ft.io proxy."""
+    try:
+        resp = requests.get(
+            f"https://12ft.io/proxy?q={url}",
+            timeout=20,
+            headers={"User-Agent": "Mozilla/5.0 (compatible; KnowledgeBot/1.0)"},
+        )
+        if resp.status_code == 200 and len(resp.text) > 500:
+            return _parse_html(resp.text, url)
+    except Exception:
+        pass
+    return None
+
+
+def _try_direct(url: str) -> dict | None:
+    """Direct HTTP scrape."""
     try:
         resp = requests.get(url, timeout=15, headers={
             "User-Agent": "Mozilla/5.0 (compatible; KnowledgeBot/1.0)"
         })
-        if resp.status_code in (403, 429, 451):
-            # Direct scrape also blocked — try bypass now
-            result = _try_bypass(url)
-            if result:
-                return result
-            return {
-                "type": "article",
-                "title": url,
-                "author": None,
-                "content": f"[Access blocked ({resp.status_code}): {url} — site requires subscription or blocks scrapers]",
-                "source_url": url,
-                "duration": None,
-            }
+        if resp.status_code == 200:
+            return _parse_html(resp.text, url)
+    except Exception:
+        pass
+    return None
 
-        soup = BeautifulSoup(resp.text, "html.parser")
 
+def _try_playwright(url: str) -> dict | None:
+    """Headless Chromium render — bypasses JS gating and many CDN checks."""
+    try:
+        from extractors.playwright_extractor import extract_with_playwright
+        text = extract_with_playwright(url)
+        if text:
+            lines = [l.strip() for l in text.splitlines() if l.strip()]
+            title = lines[0][:120] if lines else url
+            content = "\n".join(lines)
+            return _build_result(url, content, title)
+    except Exception as e:
+        print(f"[Article] Playwright error: {e}")
+    return None
+
+
+# ---------------------------------------------------------------------------
+# Helpers
+# ---------------------------------------------------------------------------
+
+def _parse_html(html: str, url: str) -> dict | None:
+    try:
+        soup = BeautifulSoup(html, "html.parser")
         for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
             tag.decompose()
-
-        title = soup.find("title")
-        title = title.get_text(strip=True) if title else url
-
+        title_tag = soup.find("title")
+        title = title_tag.get_text(strip=True) if title_tag else url
         main = soup.find("article") or soup.find("main") or soup.find("body")
         content = main.get_text(separator="\n", strip=True) if main else ""
-
+        if len(content) < 200:
+            return None
         return {
             "type": "article",
             "title": title,
@@ -72,47 +138,22 @@ def extract_article(url: str) -> dict:
             "source_url": url,
             "duration": _estimate_read_time(content),
         }
-    except Exception as e:
-        return {
-            "type": "article",
-            "title": url,
-            "author": None,
-            "content": f"[Could not extract content: {e}]",
-            "source_url": url,
-            "duration": None,
-        }
-
-
-def _try_bypass(url: str) -> dict | None:
-    """Try 12ft.io to bypass paywalls/blocks. Returns result dict or None."""
-    bypass_url = f"https://12ft.io/proxy?q={url}"
-    try:
-        resp = requests.get(bypass_url, timeout=20, headers={
-            "User-Agent": "Mozilla/5.0 (compatible; KnowledgeBot/1.0)"
-        })
-        if resp.status_code == 200 and len(resp.text) > 500:
-            soup = BeautifulSoup(resp.text, "html.parser")
-            for tag in soup(["script", "style", "nav", "footer", "header", "aside"]):
-                tag.decompose()
-            title_tag = soup.find("title")
-            title = title_tag.get_text(strip=True) if title_tag else url
-            main = soup.find("article") or soup.find("main") or soup.find("body")
-            content = main.get_text(separator="\n", strip=True) if main else ""
-            if len(content) > 300:
-                return {
-                    "type": "article",
-                    "title": title,
-                    "author": _extract_author(soup),
-                    "content": content,
-                    "source_url": url,
-                    "duration": _estimate_read_time(content),
-                }
     except Exception:
-        pass
-    return None
+        return None
 
 
-def _extract_title_from_markdown(text: str) -> str:
+def _build_result(url: str, content: str, title: str = None) -> dict:
+    return {
+        "type": "article",
+        "title": title or url,
+        "author": None,
+        "content": content,
+        "source_url": url,
+        "duration": _estimate_read_time(content),
+    }
+
+
+def _extract_title_from_markdown(text: str) -> str | None:
     for line in text.splitlines():
         line = line.strip()
         if line.startswith("# "):
@@ -122,7 +163,7 @@ def _extract_title_from_markdown(text: str) -> str:
     return None
 
 
-def _extract_author(soup: BeautifulSoup):
+def _extract_author(soup: BeautifulSoup) -> str | None:
     for selector in ['[rel="author"]', '[class*="author"]', '[name="author"]']:
         el = soup.select_one(selector)
         if el:
