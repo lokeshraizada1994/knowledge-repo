@@ -1,11 +1,11 @@
 import os
 import tempfile
 import requests
-import whisper
+from faster_whisper import WhisperModel
 
 
 def extract_podcast(url: str = None, attachment: dict = None) -> dict:
-    model = whisper.load_model("base")  # ~140MB, runs on CPU
+    model = WhisperModel("base", device="cpu", compute_type="int8")
 
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         tmp_path = tmp.name
@@ -24,10 +24,9 @@ def extract_podcast(url: str = None, attachment: dict = None) -> dict:
             raise ValueError("No audio source provided")
 
     try:
-        result = model.transcribe(tmp_path, language="en", fp16=False)
-        transcript = result["text"].strip()
-        duration_seconds = result.get("duration", 0)
-        duration_minutes = round(duration_seconds / 60)
+        segments, info = model.transcribe(tmp_path, language="en")
+        transcript = " ".join(seg.text for seg in segments).strip()
+        duration_minutes = round(info.duration / 60)
     finally:
         os.unlink(tmp_path)
 
