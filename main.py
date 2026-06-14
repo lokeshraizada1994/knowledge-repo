@@ -61,9 +61,13 @@ def webhook():
         except Exception as notion_err:
             print(f"[Pipeline] Notion skipped: {notion_err}")
 
-        write_to_supabase(knowledge_card, github_url=github_url, notion_url=notion_url)
-        print(f"[Pipeline] Written to Supabase")
+        try:
+            write_to_supabase(knowledge_card, github_url=github_url, notion_url=notion_url)
+            print(f"[Pipeline] Written to Supabase")
+        except Exception as sb_err:
+            print(f"[Pipeline] Supabase skipped: {sb_err}")
 
+        # Return 200 as long as GitHub succeeded — prevents Gmail watcher retrying
         return jsonify({
             "status": "success",
             "title": knowledge_card.get("metadata", {}).get("title"),
