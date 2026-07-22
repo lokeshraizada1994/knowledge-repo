@@ -1,23 +1,23 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Knowledge Repository</title>
 <style>
-  :root[data-theme="dark"] {
-    --bg:#0b0d14; --surface:#13172a; --surface2:#1a1f35;
-    --border:#232840; --text:#e8eaf0; --text2:#7b82a8; --text3:#4a5080;
-    --accent:#6366f1; --shadow:rgba(0,0,0,0.4);
-    --tag-bg:#1a2040; --tag-color:#818cf8; --tag-border:#2d3464;
-    --topbar-bg:#13172a;
-  }
   :root[data-theme="light"] {
-    --bg:#f4f5fb; --surface:#ffffff; --surface2:#f0f1f8;
-    --border:#e2e4f0; --text:#1a1d2e; --text2:#6b7280; --text3:#9ca3af;
-    --accent:#6366f1; --shadow:rgba(99,102,241,0.08);
-    --tag-bg:#eef0ff; --tag-color:#4f46e5; --tag-border:#c7d2fe;
+    --bg:#fdfaf5; --surface:#ffffff; --surface2:#fff5eb;
+    --border:#f0e6d6; --text:#2d2a26; --text2:#7a7268; --text3:#a89f8f;
+    --accent:#ff7a45; --shadow:rgba(255,122,69,0.10);
+    --tag-bg:#fff5eb; --tag-color:#ff7a45; --tag-border:#ffd4b3;
     --topbar-bg:#ffffff;
+  }
+  :root[data-theme="dark"] {
+    --bg:#1c1815; --surface:#26211c; --surface2:#2e2822;
+    --border:#3d352c; --text:#f5efe4; --text2:#b0a696; --text3:#7a7268;
+    --accent:#ff8a5c; --shadow:rgba(0,0,0,0.35);
+    --tag-bg:#3a2c1e; --tag-color:#ffb020; --tag-border:#5c4326;
+    --topbar-bg:#26211c;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; min-height:100vh; transition:background 0.3s,color 0.3s; }
@@ -131,6 +131,40 @@
 
 <div class="grid" id="grid">
     
+    <div class="card" data-type="podcast">
+      <div class="card-header">
+        <div class="card-icon-type">
+          <span class="card-icon">🎙️</span>
+          <span class="card-type">Podcast</span>
+        </div>
+        <span class="card-date">2026-06-14</span>
+      </div>
+      <div class="card-title"><a href="entries/2026-06-14-the-state-of-ai-in-2025-agents-innovation-and-transformation/index.html">The State of AI in 2025: Agents, Innovation, and Transformation</a></div>
+      <div class="card-summary">...</div>
+      <div class="card-footer">
+        <div class="tags"><span class="tag">AI</span><span class="tag">McKinsey</span><span class="tag">AI agents</span></div>
+        <a class="read-link" href="entries/2026-06-14-the-state-of-ai-in-2025-agents-innovation-and-transformation/index.html">Read →</a>
+      </div>
+    </div>
+    
+    
+    <div class="card" data-type="report">
+      <div class="card-header">
+        <div class="card-icon-type">
+          <span class="card-icon">📊</span>
+          <span class="card-type">Report</span>
+        </div>
+        <span class="card-date">2026-06-14</span>
+      </div>
+      <div class="card-title"><a href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">State of AI in the Enterprise: The Untapped Edge</a></div>
+      <div class="card-summary">...</div>
+      <div class="card-footer">
+        <div class="tags"><span class="tag">AI</span><span class="tag">enterprise AI</span><span class="tag">agentic AI</span></div>
+        <a class="read-link" href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">Read →</a>
+      </div>
+    </div>
+    
+    
     <div class="card" data-type="youtube">
       <div class="card-header">
         <div class="card-icon-type">
@@ -140,7 +174,7 @@
         <span class="card-date">2026-06-14</span>
       </div>
       <div class="card-title"><a href="entries/2026-06-14-rick-astley-never-gonna-give-you-up-official-video-4k-remast/index.html">Rick Astley - Never Gonna Give You Up (Official Video) (4K Remaster)</a></div>
-      <div class="card-summary">No transcript was retrievable due to a YouTube rate-limiting error (429 Too Many Requests), so no spoken or lyrical content could be extracted. The video is Rick Astley's 1987 pop classic 'Never Gonna...</div>
+      <div class="card-summary">...</div>
       <div class="card-footer">
         <div class="tags"><span class="tag">music</span><span class="tag">1980s pop</span><span class="tag">rickroll</span></div>
         <a class="read-link" href="entries/2026-06-14-rick-astley-never-gonna-give-you-up-official-video-4k-remast/index.html">Read →</a>
@@ -157,129 +191,10 @@
         <span class="card-date">2026-06-14</span>
       </div>
       <div class="card-title"><a href="entries/2026-06-14-notebooklm-claude-code-build-your-knowledge-base-in-seconds/index.html">NotebookLM + Claude Code: Build Your Knowledge Base in Seconds</a></div>
-      <div class="card-summary">This short-form YouTube video by Question Forward demonstrates a workflow combining Google's NotebookLM with Anthropic's Claude Code to rapidly build or populate a knowledge base. The premise is speed...</div>
+      <div class="card-summary">...</div>
       <div class="card-footer">
         <div class="tags"><span class="tag">NotebookLM</span><span class="tag">Claude Code</span><span class="tag">knowledge base</span></div>
         <a class="read-link" href="entries/2026-06-14-notebooklm-claude-code-build-your-knowledge-base-in-seconds/index.html">Read →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="report">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">📊</span>
-          <span class="card-type">Report</span>
-        </div>
-        <span class="card-date">2026-06-14</span>
-      </div>
-      <div class="card-title"><a href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">State of AI in the Enterprise: The Untapped Edge</a></div>
-      <div class="card-summary">["What: Deloitte's 2026 annual State of AI in the Enterprise report, based on a survey of 3,235 director-to-C-suite leaders across 24 countries and 6 industries, augmented by 15 C-suite executive interviews.", 'Core finding: AI is accelerating from pilots to enterprise scaling — workforce access grew 50% in one year to ~60% of workers — but a large gap persists between access/experimentation and true enterprise transformation or business reimagination.', 'Key tension: Most companies (37%) use AI only at a surface level with little process change; only 34% are using AI to deeply transform their businesses; revenue growth from AI remains aspirational for 74% of organizations vs. only 20% achieving it today.', 'Emerging frontiers: Sovereign AI (77% of firms say location of AI development now drives technology decisions), Agentic AI (74% plan deployment within 2 years but only 21% have mature governance), and Physical AI (58% already using it, projected 80% adoption within 2 years) are reshaping the competitive landscape.', 'Standout risk: AI agents are scaling faster than the guardrails — governance maturity is critically lagging behind deployment pace, raising unintended enterprise risk.']…</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">AI enterprise adoption</span><span class="tag">agentic AI</span><span class="tag">sovereign AI</span></div>
-        <a class="read-link" href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">Read →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="report">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">📊</span>
-          <span class="card-type">Report</span>
-        </div>
-        <span class="card-date">2026-06-14</span>
-      </div>
-      <div class="card-title"><a href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">State of AI in the Enterprise: The Untapped Edge</a></div>
-      <div class="card-summary">["Deloitte's 2026 State of AI in the Enterprise report, based on a survey of 3,235 director-to-C-suite leaders across 24 countries and 6 industries, maps where enterprises stand in AI adoption as of late 2025.", 'Core finding: AI access is expanding rapidly (up 50% YoY to ~60% of workers), but utilization, production deployment, and true business reimagination lag far behind access growth.', 'Only 34% of companies are using AI to deeply transform their business; 37% still use it at a surface level with no changes to underlying processes; and 84% have not redesigned jobs or workflows around AI capabilities.', 'Three macro trends—Sovereign AI (77% of firms weigh where AI is built), Agentic AI (74% plan deployment within 2 years but only 21% have mature governance), and Physical AI (58% already using it, 80% adoption projected within 2 years)—are reshaping enterprise AI strategy.', 'The report argues that the biggest opportunity lies not in experimentation but in translating pilots into scalable, measurable business value while keeping human judgment, governance, and purpose at the center.']…</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">AI</span><span class="tag">enterprise AI</span><span class="tag">agentic AI</span></div>
-        <a class="read-link" href="entries/2026-06-14-state-of-ai-in-the-enterprise-the-untapped-edge/index.html">Read →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="pending">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">⏳</span>
-          <span class="card-type" style="background:#2a1a00;color:#f59e0b;border-color:#7c4a00;">Pending</span>
-        </div>
-        <span class="card-date">2026-06-14</span>
-      </div>
-      <div class="card-title"><a href="pending/2026-06-14-https---www-mckinsey-com-capabilities-quantumblack/index.html">https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai?cid=eml-web</a></div>
-      <div class="card-summary" style="color:#f59e0b;">Site blocked automatic extraction. Click to see manual steps.</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">needs-manual</span></div>
-        <a class="read-link" href="pending/2026-06-14-https---www-mckinsey-com-capabilities-quantumblack/index.html">View →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="pending">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">⏳</span>
-          <span class="card-type" style="background:#2a1a00;color:#f59e0b;border-color:#7c4a00;">Pending</span>
-        </div>
-        <span class="card-date">2026-06-14</span>
-      </div>
-      <div class="card-title"><a href="pending/2026-06-14-https---www-mckinsey-com-capabilities-quantumblack/index.html">https://www.mckinsey.com/capabilities/quantumblack/our-insights/the-state-of-ai?cid=eml-web</a></div>
-      <div class="card-summary" style="color:#f59e0b;">Site blocked automatic extraction. Click to see manual steps.</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">needs-manual</span></div>
-        <a class="read-link" href="pending/2026-06-14-https---www-mckinsey-com-capabilities-quantumblack/index.html">View →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="podcast">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">🎙️</span>
-          <span class="card-type">Podcast</span>
-        </div>
-        <span class="card-date">2026-06-14</span>
-      </div>
-      <div class="card-title"><a href="entries/2026-06-14-the-state-of-ai-in-2025-agents-innovation-and-transformation/index.html">The State of AI in 2025: Agents, Innovation, and Transformation</a></div>
-      <div class="card-summary">["WHAT: McKinsey's 2025 Global Survey on the state of AI (1,993 respondents across 105 nations, fielded June 25–July 29, 2025) reveals that 88% of organizations now regularly use AI in at least one function, up from 78% a year ago.", 'CORE FINDING: Despite widespread AI adoption, most organizations remain in experimentation or piloting phases — only ~one-third have begun scaling AI enterprise-wide, and just 39% report any EBIT-level financial impact.', 'AI AGENTS EMERGING: 62% of respondents say their organizations are at least experimenting with AI agents, and 23% are already scaling agentic AI in at least one function — most heavily in IT and knowledge management.', 'HIGH PERFORMERS STAND OUT: The top ~6% of organizations (AI high performers) are 3x more likely to pursue transformative change, fundamentally redesign workflows, have senior leader ownership, and commit 20%+ of digital budgets to AI.', 'WORKFORCE UNCERTAINTY: 32% of respondents expect enterprise-wide workforce reductions of 3%+ in the next year due to AI, while 43% expect no change and 13% expect increases — signaling significant but unresolved employment disruption ahead.']…</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">AI</span><span class="tag">McKinsey</span><span class="tag">AI agents</span></div>
-        <a class="read-link" href="entries/2026-06-14-the-state-of-ai-in-2025-agents-innovation-and-transformation/index.html">Read →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="pending">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">⏳</span>
-          <span class="card-type" style="background:#2a1a00;color:#f59e0b;border-color:#7c4a00;">Pending</span>
-        </div>
-        <span class="card-date">2026-06-20</span>
-      </div>
-      <div class="card-title"><a href="pending/2026-06-20-https---c-gle-aopydkqjpaiarmazx0ob8fc6loa9ips9efox/index.html">https://c.gle/AOPyDKQjpaIarMAZX0Ob8fc6lOA9IpS9EFoXMZnkD5BnGRbYD-aC17eVyTGhb77Nvlly_U6jGFFrYkRrL9B1e8gMjTC6aLijpzpa9WgORA5Cw5E5DeB40rmb_HFmM5s7yc6wqK44Dt2V9ufeqn5N8sfSpD09X89HIxRlLvioIWntZttzfgF3WAXKGYj_Tv5eHsB_rKlKk3pLXqcqkesXAwZ2_FgPNHAIh2QBOEUXr9E2FiWKKuzudlHMB3bxRfZODhI1GOavPIPi-TpDzkXMK99tNh9Y</a></div>
-      <div class="card-summary" style="color:#f59e0b;">Site blocked automatic extraction. Click to see manual steps.</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">needs-manual</span></div>
-        <a class="read-link" href="pending/2026-06-20-https---c-gle-aopydkqjpaiarmazx0ob8fc6loa9ips9efox/index.html">View →</a>
-      </div>
-    </div>
-    
-    
-    <div class="card" data-type="pending">
-      <div class="card-header">
-        <div class="card-icon-type">
-          <span class="card-icon">⏳</span>
-          <span class="card-type" style="background:#2a1a00;color:#f59e0b;border-color:#7c4a00;">Pending</span>
-        </div>
-        <span class="card-date">2026-06-23</span>
-      </div>
-      <div class="card-title"><a href="pending/2026-06-23-https---c-gle-aopydkq3rsdimu-xramfd7pt3gs-el7-9kzf/index.html">https://c.gle/AOPyDKQ3RSDimu_XrAMFd7pT3gS_EL7-9KZf2okYgASDV1b9pimrhJpOHmLO_0A-YuDvmzKzy4kyDPEpx4kGyrmKz9_9_SwC2FjqV9sDvoVu5xMhJTd98S0CC55yhEthpNC7OuTUGPVe8Hqe5a-44ynKC9N3va41nTo0KElXNIP4WEslshRrvXJ1Sg59W0oXzk5d6XQg1adya-1FTn1l2k-KUJRh4_Npac78iToB5W0mGRjry3BUs9CM9dRg2CmJOf0iAAFndfHccAC3MD7Zrh-gapK6OJ-cpbM9_fWxYdI8t_lYgY10ote-qXtZGrWaGDyY-RH700ogXT59mwp1i6395L3VHgD7RTYG1CEc-tZwTWXYQg2SsIuqscRIxcxOiXm2OJw</a></div>
-      <div class="card-summary" style="color:#f59e0b;">Site blocked automatic extraction. Click to see manual steps.</div>
-      <div class="card-footer">
-        <div class="tags"><span class="tag">needs-manual</span></div>
-        <a class="read-link" href="pending/2026-06-23-https---c-gle-aopydkq3rsdimu-xramfd7pt3gs-el7-9kzf/index.html">View →</a>
       </div>
     </div>
     
