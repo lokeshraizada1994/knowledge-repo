@@ -151,10 +151,10 @@ def _render_insights_html(compact_cards: list, synthesis: dict) -> str:
 <title>Insights — Knowledge Repository</title>
 <style>
   :root {{
-    --bg: #fdfaf5; --surface: #ffffff; --border: #f0e6d6;
-    --text: #2d2a26; --text2: #7a7268;
-    --accent: #ff7a45; --accent2: #ffb020;
-    --shadow: rgba(255, 122, 69, 0.10);
+    --bg: #faf8f4; --surface: #ffffff; --border: #ece4d6;
+    --text: #3a352e; --text2: #8a8074;
+    --accent: #c96f4a; --accent2: #d9a441;
+    --shadow: rgba(201, 111, 74, 0.08);
   }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{ background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif;
@@ -163,7 +163,7 @@ def _render_insights_html(compact_cards: list, synthesis: dict) -> str:
   .topbar {{ display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }}
   .back-link {{ color: var(--accent); text-decoration: none; font-weight: 700; font-size: 13px; }}
 
-  .hero {{ background: linear-gradient(135deg, #fff5eb 0%, #fef3ff 100%); border: 1px solid #ffe0c2;
+  .hero {{ background: linear-gradient(135deg, #f6efe3 0%, #f2e9d8 100%); border: 1px solid #e8d9bf;
     border-radius: 20px; padding: 36px; margin-bottom: 24px; text-align: center;
     box-shadow: 0 4px 20px var(--shadow); }}
   .hero h1 {{ font-size: 28px; font-weight: 900; margin-bottom: 10px; }}
@@ -176,7 +176,7 @@ def _render_insights_html(compact_cards: list, synthesis: dict) -> str:
   .stat-label {{ font-size: 11px; color: var(--text2); text-transform: uppercase; letter-spacing: 1px; font-weight: 700; }}
 
   .type-chips {{ display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 24px; }}
-  .type-chip {{ background: #fff; border: 1px solid #ffe0c2; border-radius: 999px; padding: 8px 16px;
+  .type-chip {{ background: #fff; border: 1px solid #e8d9bf; border-radius: 999px; padding: 8px 16px;
     font-size: 12.5px; font-weight: 700; }}
 
   .section-title {{ font-size: 13px; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px;
@@ -184,7 +184,7 @@ def _render_insights_html(compact_cards: list, synthesis: dict) -> str:
 
   .theme-card, .connection-card {{ background: var(--surface); border: 1px solid var(--border);
     border-radius: 14px; padding: 18px 22px; margin-bottom: 12px; }}
-  .theme-name {{ font-weight: 800; font-size: 15px; margin-bottom: 6px; color: #1f1c19; }}
+  .theme-name {{ font-weight: 800; font-size: 15px; margin-bottom: 6px; color: #2a251f; }}
   .theme-desc, .connection-desc {{ color: var(--text); margin-bottom: 8px; }}
   .theme-sources, .connection-sources {{ font-size: 12px; color: var(--text2); font-weight: 600; }}
 
@@ -197,8 +197,8 @@ def _render_insights_html(compact_cards: list, synthesis: dict) -> str:
 
   .empty-note {{ color: var(--text2); font-style: italic; font-size: 13px; }}
 
-  .one-liner {{ text-align: center; padding: 20px; background: linear-gradient(135deg, #fff9f0, #fef3ff);
-    border-radius: 14px; font-weight: 700; color: #92400e; margin-top: 24px; border: 1px solid #ffe9c7; }}
+  .one-liner {{ text-align: center; padding: 20px; background: linear-gradient(135deg, #fbf7f0, #f6f0f3);
+    border-radius: 14px; font-weight: 700; color: #8a5a2e; margin-top: 24px; border: 1px solid #ece0cc; }}
 
   .footer {{ text-align: center; color: var(--text2); font-size: 11px; margin-top: 32px; }}
 </style>

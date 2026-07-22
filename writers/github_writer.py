@@ -126,18 +126,18 @@ def _base_index_html() -> str:
 <title>Knowledge Repository</title>
 <style>
   :root[data-theme="light"] {
-    --bg:#fdfaf5; --surface:#ffffff; --surface2:#fff5eb;
-    --border:#f0e6d6; --text:#2d2a26; --text2:#7a7268; --text3:#a89f8f;
-    --accent:#ff7a45; --shadow:rgba(255,122,69,0.10);
-    --tag-bg:#fff5eb; --tag-color:#ff7a45; --tag-border:#ffd4b3;
+    --bg:#faf8f4; --surface:#ffffff; --surface2:#f6f1e9;
+    --border:#ece4d6; --text:#3a352e; --text2:#8a8074; --text3:#b0a696;
+    --accent:#c96f4a; --accent-soft:#d68a68; --shadow:rgba(201,111,74,0.07);
+    --tag-bg:#f6ede4; --tag-color:#b05f3c; --tag-border:#e8d4c2;
     --topbar-bg:#ffffff;
   }
   :root[data-theme="dark"] {
-    --bg:#1c1815; --surface:#26211c; --surface2:#2e2822;
-    --border:#3d352c; --text:#f5efe4; --text2:#b0a696; --text3:#7a7268;
-    --accent:#ff8a5c; --shadow:rgba(0,0,0,0.35);
-    --tag-bg:#3a2c1e; --tag-color:#ffb020; --tag-border:#5c4326;
-    --topbar-bg:#26211c;
+    --bg:#211d19; --surface:#2a2520; --surface2:#322c25;
+    --border:#40382e; --text:#eee7db; --text2:#a89c8a; --text3:#7a7268;
+    --accent:#d68a68; --accent-soft:#c96f4a; --shadow:rgba(0,0,0,0.3);
+    --tag-bg:#3a2f24; --tag-color:#e0a97e; --tag-border:#5c4a36;
+    --topbar-bg:#2a2520;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; min-height:100vh; transition:background 0.3s,color 0.3s; }
@@ -161,9 +161,15 @@ def _base_index_html() -> str:
   .theme-icon.moon { left:6px; }
   .theme-icon.sun  { right:5px; }
 
-  .insights-link { background:var(--accent); color:#fff; border-radius:8px; padding:7px 14px;
-    font-size:12px; font-weight:700; text-decoration:none; transition:opacity 0.2s; }
-  .insights-link:hover { opacity:0.85; }
+  .insights-link { background:var(--surface2); color:var(--text); border:1px solid var(--border);
+    border-radius:8px; padding:7px 14px; font-size:12px; font-weight:700; text-decoration:none;
+    transition:all 0.2s; }
+  .insights-link:hover { border-color:var(--accent); color:var(--accent); }
+
+  .tab-insights { background:var(--surface); border:1px solid var(--border); color:var(--accent);
+    border-radius:10px; padding:9px 16px; font-size:12px; cursor:pointer; font-weight:700;
+    transition:all 0.2s; white-space:nowrap; text-decoration:none; display:inline-flex; align-items:center; gap:6px; }
+  .tab-insights:hover { background:var(--accent); border-color:var(--accent); color:#fff; }
 
   .hero { padding:40px 32px 24px; max-width:1200px; margin:0 auto; }
   .hero h1 { font-size:32px; font-weight:900; margin-bottom:6px; }
@@ -225,7 +231,6 @@ def _base_index_html() -> str:
       <div class="stat"><div class="stat-num" id="total-count">0</div><div class="stat-label">Entries</div></div>
       <div class="stat"><div class="stat-num" id="type-count">0</div><div class="stat-label">Types</div></div>
     </div>
-    <a class="insights-link" href="insights.html">✨ <span>Insights</span></a>
     <button class="theme-toggle" onclick="toggleTheme()" title="Toggle theme">
       <span class="theme-icon moon">🌙</span>
       <span class="theme-icon sun">☀️</span>
@@ -246,6 +251,7 @@ def _base_index_html() -> str:
     <button class="filter-btn" onclick="filterByType('article',this)">📰 Articles</button>
     <button class="filter-btn" onclick="filterByType('podcast',this)">🎙️ Podcasts</button>
     <button class="filter-btn" onclick="filterByType('report',this)">📊 Reports</button>
+    <a class="tab-insights" href="insights.html">✨ Insights</a>
   </div>
 </div>
 

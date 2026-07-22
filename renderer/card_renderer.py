@@ -120,18 +120,18 @@ def render_card(card: dict) -> str:
 <title>{title}</title>
 <style>
   :root {{
-    --bg: #fdfaf5;
+    --bg: #faf8f4;
     --surface: #ffffff;
-    --border: #f0e6d6;
-    --text: #2d2a26;
-    --text2: #7a7268;
-    --accent: #ff7a45;
-    --accent2: #ffb020;
-    --green: #16a34a;
-    --green-bg: #f0fdf4;
-    --amber-bg: #fffbeb;
-    --amber-border: #fde68a;
-    --shadow: rgba(255, 122, 69, 0.08);
+    --border: #ece4d6;
+    --text: #3a352e;
+    --text2: #8a8074;
+    --accent: #c96f4a;
+    --accent2: #d9a441;
+    --green: #4d8a5f;
+    --green-bg: #f0f7f1;
+    --amber-bg: #fbf5e9;
+    --amber-border: #ecdcb0;
+    --shadow: rgba(201, 111, 74, 0.06);
   }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
   body {{
@@ -143,17 +143,17 @@ def render_card(card: dict) -> str:
   }}
 
   .hero {{
-    background: linear-gradient(135deg, #fff5eb 0%, #fff0e0 100%);
-    border: 1px solid #ffe0c2;
+    background: linear-gradient(135deg, #f6efe3 0%, #f2e9d8 100%);
+    border: 1px solid #e8d9bf;
     border-radius: 20px; padding: 32px; margin-bottom: 20px;
     box-shadow: 0 4px 20px var(--shadow);
   }}
   .hero-icon {{ font-size: 34px; margin-bottom: 10px; }}
-  .hero-title {{ font-size: 25px; font-weight: 800; color: #1f1c19; margin-bottom: 10px; line-height: 1.35; }}
+  .hero-title {{ font-size: 25px; font-weight: 800; color: #2a251f; margin-bottom: 10px; line-height: 1.35; }}
   .hero-meta {{ display: flex; gap: 16px; flex-wrap: wrap; color: var(--text2); font-size: 12.5px; margin-bottom: 14px; }}
   .hero-meta span {{ display: flex; align-items: center; gap: 4px; }}
   .tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }}
-  .tag {{ background: #fff; color: var(--accent); border: 1px solid #ffd4b3;
+  .tag {{ background: #fff; color: var(--accent); border: 1px solid #e8d4c2;
     padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }}
   .source-link {{ color: var(--accent); text-decoration: none; font-size: 12.5px; font-weight: 700; }}
   .source-link:hover {{ text-decoration: underline; }}
@@ -168,51 +168,51 @@ def render_card(card: dict) -> str:
     letter-spacing: 1.2px; color: var(--text2); }}
 
   /* TL;DR */
-  .tldr-block {{ background: linear-gradient(135deg, #fff9f0 0%, #fffef8 100%); border: 1px solid #ffe9c7; }}
+  .tldr-block {{ background: linear-gradient(135deg, #fbf7f0 0%, #fefdfa 100%); border: 1px solid #ece0cc; }}
   .tldr-list {{ list-style: none; }}
-  .tldr-list li {{ position: relative; padding-left: 26px; margin-bottom: 10px; font-weight: 600; font-size: 15.5px; color: #1f1c19; }}
+  .tldr-list li {{ position: relative; padding-left: 26px; margin-bottom: 10px; font-weight: 600; font-size: 15.5px; color: #2a251f; }}
   .tldr-list li::before {{ content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 900; }}
 
   /* Top Insights */
-  .insight-card {{ display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f5efe4; }}
+  .insight-card {{ display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f2ece0; }}
   .insight-card:last-child {{ border-bottom: none; }}
   .insight-num {{ flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
     background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
     display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }}
-  .insight-text {{ font-weight: 600; color: #1f1c19; margin-bottom: 4px; }}
+  .insight-text {{ font-weight: 600; color: #2a251f; margin-bottom: 4px; }}
   .insight-why {{ font-size: 12.5px; color: var(--text2); }}
 
   /* Best Example */
   .example-box {{ background: var(--amber-bg); border: 1px solid var(--amber-border);
     border-radius: 12px; padding: 18px 20px; }}
-  .example-title {{ font-weight: 800; color: #92400e; font-size: 13px; text-transform: uppercase;
+  .example-title {{ font-weight: 800; color: #8a5a2e; font-size: 13px; text-transform: uppercase;
     letter-spacing: 0.5px; margin-bottom: 8px; }}
-  .example-story {{ font-style: italic; color: #451a03; line-height: 1.7; }}
+  .example-story {{ font-style: italic; color: #4a3a24; line-height: 1.7; }}
 
   /* Do This */
   .do-list {{ list-style: none; }}
   .do-list li {{ display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-weight: 500; }}
   .check {{ flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; background: var(--green-bg);
     color: var(--green); display: flex; align-items: center; justify-content: center;
-    font-size: 12px; font-weight: 900; border: 1px solid #bbf7d0; }}
+    font-size: 12px; font-weight: 900; border: 1px solid #cde3d1; }}
 
   /* The Catch */
-  .catch-block {{ background: #fff7ed; border: 1px solid #fed7aa; }}
-  .catch-text {{ color: #7c2d12; font-weight: 500; }}
+  .catch-block {{ background: #faf3e9; border: 1px solid #e6d3ae; }}
+  .catch-text {{ color: #6b4a28; font-weight: 500; }}
 
   .empty-note {{ color: var(--text2); font-style: italic; font-size: 13px; }}
 
   /* Extra sections */
-  .quote-block {{ font-style: italic; font-size: 16px; color: #1f1c19; padding: 8px 0 8px 16px;
+  .quote-block {{ font-style: italic; font-size: 16px; color: #2a251f; padding: 8px 0 8px 16px;
     border-left: 3px solid var(--accent); }}
   .stat-grid {{ display: flex; flex-wrap: wrap; gap: 10px; }}
-  .stat-chip {{ background: #fff5eb; border: 1px solid #ffe0c2; border-radius: 10px;
-    padding: 10px 16px; font-weight: 700; font-size: 13.5px; color: #1f1c19; }}
+  .stat-chip {{ background: #f6efe3; border: 1px solid #e8d4c2; border-radius: 10px;
+    padding: 10px 16px; font-weight: 700; font-size: 13.5px; color: #2a251f; }}
   .extra-list {{ padding-left: 20px; }}
   .extra-list li {{ margin-bottom: 8px; }}
 
   /* Flashcards */
-  .flash-block {{ background: linear-gradient(135deg, #fef3ff 0%, #fff5eb 100%); border: 1px solid #f3d9ff; }}
+  .flash-block {{ background: linear-gradient(135deg, #f6f0f3 0%, #f6efe3 100%); border: 1px solid #e6d9de; }}
   .flash-grid {{ display: grid; grid-template-columns: 1fr; gap: 12px; }}
   .flashcard {{ perspective: 1000px; height: 110px; cursor: pointer; }}
   .flash-inner {{ position: relative; width: 100%; height: 100%; transition: transform 0.5s;
@@ -220,7 +220,7 @@ def render_card(card: dict) -> str:
   .flashcard.flipped .flash-inner {{ transform: rotateY(180deg); }}
   .flash-face {{ position: absolute; width: 100%; height: 100%; backface-visibility: hidden;
     border-radius: 12px; padding: 16px 20px; display: flex; flex-direction: column; justify-content: center; }}
-  .flash-front {{ background: #fff; border: 2px solid #ffd4b3; }}
+  .flash-front {{ background: #fff; border: 2px solid #e8d4c2; }}
   .flash-back {{ background: linear-gradient(135deg, var(--accent), var(--accent2));
     transform: rotateY(180deg); color: #fff; }}
   .flash-label {{ font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 1px;
@@ -228,9 +228,9 @@ def render_card(card: dict) -> str:
   .flash-text {{ font-weight: 700; font-size: 14.5px; line-height: 1.4; }}
   .flash-hint {{ font-size: 11px; color: var(--text2); margin-top: 8px; font-weight: 500; }}
 
-  .progress-note {{ text-align: center; padding: 18px; background: linear-gradient(135deg, #fff5eb, #fef9ed);
-    border-radius: 14px; margin-bottom: 16px; font-weight: 700; color: #92400e; font-size: 13.5px;
-    border: 1px solid #ffe9c7; }}
+  .progress-note {{ text-align: center; padding: 18px; background: linear-gradient(135deg, #f6efe3, #fbf7f0);
+    border-radius: 14px; margin-bottom: 16px; font-weight: 700; color: #8a5a2e; font-size: 13.5px;
+    border: 1px solid #ece0cc; }}
 
   .footer {{ text-align: center; color: var(--text2); font-size: 11.5px; margin-top: 28px; }}
 </style>
