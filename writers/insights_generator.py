@@ -73,7 +73,7 @@ def _synthesize(compact_cards: list) -> dict:
     user_message = "ARCHIVE:\n" + json.dumps(compact_cards, indent=2)
 
     response = client.messages.create(
-        model="claude-sonnet-4-6",
+        model="claude-haiku-4-5-20251001",
         max_tokens=3000,
         system=SYNTHESIS_PROMPT,
         messages=[{"role": "user", "content": user_message}],
