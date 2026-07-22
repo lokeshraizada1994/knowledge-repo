@@ -88,69 +88,55 @@ def _is_na(val) -> bool:
 def _build_blocks(card: dict) -> list:
     blocks = []
 
-    # Executive Summary
-    blocks.append(_heading("📌 Executive Summary", 2))
-    summary = card.get("executive_summary", {}).get("content", "")
-    if isinstance(summary, list):
-        for s in summary:
-            blocks.append(_bulleted(s))
+    # TL;DR
+    blocks.append(_heading("⚡ TL;DR", 2))
+    for line in card.get("tldr", []):
+        blocks.append(_bulleted(line))
+    blocks.append(_divider())
+
+    # Top Insights
+    blocks.append(_heading("🎯 Top Insights", 2))
+    for item in card.get("top_insights", []):
+        insight = item.get("insight", "")
+        why = item.get("why_it_matters", "")
+        blocks.append(_numbered(insight + (f" — {why}" if why else "")))
+    blocks.append(_divider())
+
+    # Best Example
+    blocks.append(_heading("📖 Best Example", 2))
+    example = card.get("best_example", {})
+    if example.get("present"):
+        blocks.append(_callout(example.get("story", ""), "📖"))
     else:
-        blocks.append(_callout(summary, "📌"))
+        blocks.append(_paragraph(example.get("reason_absent", "N/A")))
     blocks.append(_divider())
 
-    # Top 5 Takeaways
-    blocks.append(_heading("🏆 Top 5 Takeaways", 2))
-    for t in card.get("top_5_takeaways", {}).get("content", []):
-        point = t.get("point", "")
-        suffix = " [inferred]" if t.get("inferred") else ""
-        blocks.append(_numbered(point + suffix))
-    blocks.append(_divider())
-
-    # Actionables
-    blocks.append(_heading("⚡ Actionables", 2))
-    actions = card.get("actionables", {}).get("content", [])
-    if isinstance(actions, list):
-        for a in actions:
+    # Do This
+    blocks.append(_heading("✅ Do This", 2))
+    do_this = card.get("do_this", {})
+    if do_this.get("present"):
+        for a in do_this.get("actions", []):
             blocks.append(_numbered(a))
     else:
-        blocks.append(_paragraph(str(actions)))
+        blocks.append(_paragraph(do_this.get("reason_absent", "N/A")))
     blocks.append(_divider())
 
-    # Critique
-    blocks.append(_heading("🔍 Critique", 2))
-    critique = card.get("critique", {})
-    blocks.append(_paragraph("✅ Strengths"))
-    for s in critique.get("strengths", []):
-        blocks.append(_bulleted(s))
-    blocks.append(_paragraph("⚠️ Weaknesses"))
-    for w in critique.get("weaknesses", []):
-        blocks.append(_bulleted(w))
-    blocks.append(_paragraph("❓ Missing"))
-    for m in critique.get("missing", []):
-        blocks.append(_bulleted(m))
+    # The Catch
+    blocks.append(_heading("⚠️ The Catch", 2))
+    blocks.append(_callout(card.get("the_catch", ""), "⚠️"))
     blocks.append(_divider())
 
-    # Contextual sections
-    sections = [
-        ("🧠 Thinking Framework", "thinking_framework", "content"),
-        ("💡 Knowledge Insights",  "knowledge_insights",  "content"),
-        ("📖 Examples & Stories",  "examples_and_stories","content"),
-        ("🚧 Limitations & Challenges", "limitations_and_challenges", "content"),
-        ("✅ Best Practices",      "best_practices",      "content"),
-        ("🎯 Use Cases",           "use_cases",           "content"),
-        ("🔭 What's Ahead",        "whats_ahead",         "content"),
-    ]
-
-    for label, key, field in sections:
-        blocks.append(_heading(label, 2))
-        val = card.get(key, {}).get(field, "")
-        if _is_na(val):
-            blocks.append(_callout(str(val), "⬜"))
-        elif isinstance(val, list):
-            for item in val:
+    # Extra sections (flexible, varies per source)
+    for sec in card.get("extra_sections", []) or []:
+        emoji = sec.get("emoji", "✨")
+        sec_title = sec.get("title", "Worth Noting")
+        blocks.append(_heading(f"{emoji} {sec_title}", 2))
+        content = sec.get("content", [])
+        if isinstance(content, list):
+            for item in content:
                 blocks.append(_bulleted(str(item)))
         else:
-            blocks.append(_paragraph(str(val)))
+            blocks.append(_paragraph(str(content)))
         blocks.append(_divider())
 
     return blocks

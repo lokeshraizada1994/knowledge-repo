@@ -71,7 +71,8 @@ def _update_index(repo, card: dict, folder: str):
     date = meta.get("date_processed", "")
     source_type = meta.get("source_type", "")
     tags = meta.get("tags", [])
-    summary = card.get("executive_summary", {}).get("content", "")[:200]
+    tldr = card.get("tldr", [])
+    summary = (tldr[0] if tldr else "")[:200]
 
     icons = {
         "youtube": "▶️", "podcast": "🎙️", "article": "📰",
@@ -118,25 +119,25 @@ def _update_index(repo, card: dict, folder: str):
 
 def _base_index_html() -> str:
     return """<!DOCTYPE html>
-<html lang="en" data-theme="dark">
+<html lang="en" data-theme="light">
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Knowledge Repository</title>
 <style>
-  :root[data-theme="dark"] {
-    --bg:#0b0d14; --surface:#13172a; --surface2:#1a1f35;
-    --border:#232840; --text:#e8eaf0; --text2:#7b82a8; --text3:#4a5080;
-    --accent:#6366f1; --shadow:rgba(0,0,0,0.4);
-    --tag-bg:#1a2040; --tag-color:#818cf8; --tag-border:#2d3464;
-    --topbar-bg:#13172a;
-  }
   :root[data-theme="light"] {
-    --bg:#f4f5fb; --surface:#ffffff; --surface2:#f0f1f8;
-    --border:#e2e4f0; --text:#1a1d2e; --text2:#6b7280; --text3:#9ca3af;
-    --accent:#6366f1; --shadow:rgba(99,102,241,0.08);
-    --tag-bg:#eef0ff; --tag-color:#4f46e5; --tag-border:#c7d2fe;
+    --bg:#fdfaf5; --surface:#ffffff; --surface2:#fff5eb;
+    --border:#f0e6d6; --text:#2d2a26; --text2:#7a7268; --text3:#a89f8f;
+    --accent:#ff7a45; --shadow:rgba(255,122,69,0.10);
+    --tag-bg:#fff5eb; --tag-color:#ff7a45; --tag-border:#ffd4b3;
     --topbar-bg:#ffffff;
+  }
+  :root[data-theme="dark"] {
+    --bg:#1c1815; --surface:#26211c; --surface2:#2e2822;
+    --border:#3d352c; --text:#f5efe4; --text2:#b0a696; --text3:#7a7268;
+    --accent:#ff8a5c; --shadow:rgba(0,0,0,0.35);
+    --tag-bg:#3a2c1e; --tag-color:#ffb020; --tag-border:#5c4326;
+    --topbar-bg:#26211c;
   }
   * { box-sizing:border-box; margin:0; padding:0; }
   body { background:var(--bg); color:var(--text); font-family:system-ui,-apple-system,sans-serif; min-height:100vh; transition:background 0.3s,color 0.3s; }

@@ -1,4 +1,3 @@
-import json
 from datetime import datetime
 
 
@@ -12,158 +11,85 @@ def render_card(card: dict) -> str:
     duration = meta.get("estimated_duration", "")
     tags = meta.get("tags", [])
 
-    source_icons = {
+    icons = {
         "youtube": "▶️", "podcast": "🎙️", "article": "📰",
         "case_study": "📋", "report": "📊", "text": "📝"
     }
-    icon = source_icons.get(source_type, "📄")
+    icon = icons.get(source_type, "📄")
 
-    def is_na(val):
-        if isinstance(val, str):
-            return val.strip().upper().startswith("N/A")
-        return False
+    # ── TL;DR ────────────────────────────────────────────────────────────
+    tldr = card.get("tldr", [])
+    tldr_html = "".join(f"<li>{t}</li>" for t in tldr if t)
 
-    def safe_list(val):
-        if isinstance(val, list):
-            return val
-        return []
-
-    def render_section(section_id, label, emoji, content_html, na=False):
-        na_class = "na-section" if na else ""
-        return f"""
-        <div class="section {na_class}" id="{section_id}">
-            <div class="section-header">
-                <span class="section-icon">{emoji}</span>
-                <span class="section-title">{label}</span>
-                {"<span class='na-badge'>N/A</span>" if na else ""}
-            </div>
-            <div class="section-body">{content_html}</div>
+    # ── Top Insights ─────────────────────────────────────────────────────
+    insights = card.get("top_insights", [])
+    insights_html = ""
+    for i, item in enumerate(insights, 1):
+        insight = item.get("insight", "")
+        why = item.get("why_it_matters", "")
+        insights_html += f"""
+        <div class="insight-card">
+          <div class="insight-num">{i}</div>
+          <div class="insight-body">
+            <div class="insight-text">{insight}</div>
+            {f'<div class="insight-why">💡 {why}</div>' if why else ''}
+          </div>
         </div>"""
 
-    # ── Build each section ──────────────────────────────────────────────────
-
-    # Executive Summary
-    summary = card.get("executive_summary", {})
-    summary_content = summary.get("content", "")
-    if isinstance(summary_content, list):
-        summary_html = "<ul class='summary-list'>" + "".join(f"<li>{s}</li>" for s in summary_content if s) + "</ul>"
+    # ── Best Example ─────────────────────────────────────────────────────
+    example = card.get("best_example", {})
+    example_present = example.get("present", False)
+    if example_present:
+        ex_title = example.get("title", "")
+        ex_story = example.get("story", "")
+        example_html = f"""
+        <div class="example-box">
+          {f'<div class="example-title">{ex_title}</div>' if ex_title else ''}
+          <div class="example-story">&ldquo;{ex_story}&rdquo;</div>
+        </div>"""
     else:
-        summary_html = f"<p>{summary_content}</p>"
+        reason = example.get("reason_absent", "No standout example in this source.")
+        example_html = f'<div class="empty-note">{reason}</div>'
 
-    # Top 5 Takeaways
-    takeaways = card.get("top_5_takeaways", {}).get("content", [])
-    takeaways_html = "<ol class='takeaway-list'>"
-    for t in takeaways:
-        inferred = t.get("inferred", False)
-        badge = "<span class='inferred-badge'>inferred</span>" if inferred else ""
-        takeaways_html += f"<li>{t.get('point','')}{badge}</li>"
-    takeaways_html += "</ol>"
-
-    # Actionables
-    actions = safe_list(card.get("actionables", {}).get("content", []))
-    actions_html = "<ol class='action-list'>"
-    for a in actions:
-        actions_html += f"<li>{a}</li>"
-    actions_html += "</ol>"
-
-    # Critique
-    critique = card.get("critique", {})
-    strengths = safe_list(critique.get("strengths", []))
-    weaknesses = safe_list(critique.get("weaknesses", []))
-    missing = safe_list(critique.get("missing", []))
-    critique_html = "<div class='critique-grid'>"
-    critique_html += "<div class='critique-col strengths'><div class='col-label'>✅ Strengths</div><ul>"
-    for s in strengths:
-        critique_html += f"<li>{s}</li>"
-    critique_html += "</ul></div>"
-    critique_html += "<div class='critique-col weaknesses'><div class='col-label'>⚠️ Weaknesses</div><ul>"
-    for w in weaknesses:
-        critique_html += f"<li>{w}</li>"
-    critique_html += "</ul></div>"
-    critique_html += "<div class='critique-col missing'><div class='col-label'>❓ Missing</div><ul>"
-    for m in missing:
-        critique_html += f"<li>{m}</li>"
-    critique_html += "</ul></div>"
-    critique_html += "</div>"
-
-    # Thinking Framework
-    framework = card.get("thinking_framework", {})
-    fw_content = framework.get("content", "")
-    fw_name = framework.get("framework_name")
-    fw_na = is_na(fw_content)
-    if fw_na:
-        fw_html = f"<p class='na-text'>{fw_content}</p>"
+    # ── Do This ──────────────────────────────────────────────────────────
+    do_this = card.get("do_this", {})
+    do_present = do_this.get("present", False)
+    if do_present:
+        actions = do_this.get("actions", [])
+        do_html = "".join(f'<li><span class="check">✓</span>{a}</li>' for a in actions)
+        do_html = f'<ul class="do-list">{do_html}</ul>'
     else:
-        fw_name_html = f"<div class='fw-name'>{fw_name}</div>" if fw_name else ""
-        fw_html = f"{fw_name_html}<p>{fw_content}</p>"
+        reason = do_this.get("reason_absent", "No concrete actions in this source.")
+        do_html = f'<div class="empty-note">{reason}</div>'
 
-    # Knowledge Insights
-    insights = card.get("knowledge_insights", {}).get("content", "")
-    insights_na = is_na(insights)
-    insights_html = f"<p class='{'na-text' if insights_na else ''}'>{insights}</p>"
+    # ── The Catch ────────────────────────────────────────────────────────
+    catch = card.get("the_catch", "")
 
-    # Examples & Stories
-    examples = card.get("examples_and_stories", {}).get("content", "")
-    examples_na = is_na(examples) if isinstance(examples, str) else False
-    if examples_na:
-        examples_html = f"<p class='na-text'>{examples}</p>"
-    elif isinstance(examples, list):
-        examples_html = "<ul class='examples-list'>"
-        for e in examples:
-            examples_html += f"<li>{e}</li>"
-        examples_html += "</ul>"
-    else:
-        examples_html = f"<p>{examples}</p>"
+    # ── Extra Sections (flexible) ────────────────────────────────────────
+    extra_html = ""
+    for sec in card.get("extra_sections", []) or []:
+        emoji = sec.get("emoji", "✨")
+        sec_title = sec.get("title", "Worth Noting")
+        sec_type = sec.get("type", "bullets")
+        content = sec.get("content", [])
 
-    # Limitations
-    limitations = card.get("limitations_and_challenges", {}).get("content", "")
-    lim_na = is_na(limitations) if isinstance(limitations, str) else False
-    if lim_na:
-        lim_html = f"<p class='na-text'>{limitations}</p>"
-    elif isinstance(limitations, list):
-        lim_html = "<ul class='lim-list'>"
-        for l in limitations:
-            lim_html += f"<li>{l}</li>"
-        lim_html += "</ul>"
-    else:
-        lim_html = f"<p>{limitations}</p>"
+        if sec_type == "quote" and content:
+            body = f'<div class="quote-block">&ldquo;{content[0] if isinstance(content, list) else content}&rdquo;</div>'
+        elif sec_type == "stat" and isinstance(content, list):
+            body = '<div class="stat-grid">' + "".join(f'<div class="stat-chip">{c}</div>' for c in content) + '</div>'
+        elif isinstance(content, list):
+            body = "<ul class='extra-list'>" + "".join(f"<li>{c}</li>" for c in content) + "</ul>"
+        else:
+            body = f"<p>{content}</p>"
 
-    # Best Practices
-    practices = card.get("best_practices", {}).get("content", "")
-    bp_na = is_na(practices) if isinstance(practices, str) else False
-    if bp_na:
-        bp_html = f"<p class='na-text'>{practices}</p>"
-    elif isinstance(practices, list):
-        bp_html = "<ul class='bp-list'>"
-        for p in practices:
-            bp_html += f"<li>{p}</li>"
-        bp_html += "</ul>"
-    else:
-        bp_html = f"<p>{practices}</p>"
+        extra_html += f"""
+        <div class="card-block extra-block">
+          <div class="block-header"><span class="block-icon">{emoji}</span><span class="block-title">{sec_title}</span></div>
+          {body}
+        </div>"""
 
-    # Use Cases
-    use_cases = card.get("use_cases", {}).get("content", "")
-    uc_na = is_na(use_cases) if isinstance(use_cases, str) else False
-    if uc_na:
-        uc_html = f"<p class='na-text'>{use_cases}</p>"
-    elif isinstance(use_cases, list):
-        uc_html = "<div class='use-case-grid'>"
-        for uc in use_cases:
-            uc_html += f"<div class='use-case-chip'>{uc}</div>"
-        uc_html += "</div>"
-    else:
-        uc_html = f"<p>{use_cases}</p>"
-
-    # What's Ahead
-    ahead = card.get("whats_ahead", {}).get("content", "")
-    ahead_na = is_na(ahead)
-    ahead_html = f"<p class='{'na-text' if ahead_na else ''}'>{ahead}</p>"
-
-    # Tags HTML
     tags_html = "".join(f"<span class='tag'>{t}</span>" for t in tags)
-
-    # Source link
-    source_link = f'<a href="{source_url}" target="_blank" class="source-link">View original →</a>' if source_url else ""
+    source_link = f'<a href="{source_url}" target="_blank" class="source-link">View original ↗</a>' if source_url else ""
 
     html = f"""<!DOCTYPE html>
 <html lang="en">
@@ -173,72 +99,98 @@ def render_card(card: dict) -> str:
 <title>{title}</title>
 <style>
   :root {{
-    --bg: #0f1117; --surface: #1a1f2e; --surface2: #242938;
-    --border: #2d3448; --text: #e8eaf0; --text2: #9aa0b8;
-    --accent: #6366f1; --accent2: #8b5cf6; --green: #22c55e;
-    --red: #ef4444; --yellow: #f59e0b; --blue: #3b82f6;
+    --bg: #fdfaf5;
+    --surface: #ffffff;
+    --border: #f0e6d6;
+    --text: #2d2a26;
+    --text2: #7a7268;
+    --accent: #ff7a45;
+    --accent2: #ffb020;
+    --green: #16a34a;
+    --green-bg: #f0fdf4;
+    --amber-bg: #fffbeb;
+    --amber-border: #fde68a;
+    --shadow: rgba(255, 122, 69, 0.08);
   }}
   * {{ box-sizing: border-box; margin: 0; padding: 0; }}
-  body {{ background: var(--bg); color: var(--text); font-family: system-ui, -apple-system, sans-serif;
-    font-size: 14px; line-height: 1.7; padding: 24px; max-width: 900px; margin: 0 auto; }}
+  body {{
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    font-size: 15px; line-height: 1.7; padding: 28px 20px 60px;
+    max-width: 760px; margin: 0 auto;
+  }}
 
-  .hero {{ background: linear-gradient(135deg, #1a1f2e 0%, #242938 100%);
-    border: 1px solid var(--border); border-radius: 16px; padding: 32px; margin-bottom: 24px; }}
-  .hero-icon {{ font-size: 36px; margin-bottom: 12px; }}
-  .hero-title {{ font-size: 26px; font-weight: 800; color: #fff; margin-bottom: 8px; line-height: 1.3; }}
-  .hero-meta {{ display: flex; gap: 16px; flex-wrap: wrap; color: var(--text2); font-size: 12px; margin-bottom: 14px; }}
+  .hero {{
+    background: linear-gradient(135deg, #fff5eb 0%, #fff0e0 100%);
+    border: 1px solid #ffe0c2;
+    border-radius: 20px; padding: 32px; margin-bottom: 20px;
+    box-shadow: 0 4px 20px var(--shadow);
+  }}
+  .hero-icon {{ font-size: 34px; margin-bottom: 10px; }}
+  .hero-title {{ font-size: 25px; font-weight: 800; color: #1f1c19; margin-bottom: 10px; line-height: 1.35; }}
+  .hero-meta {{ display: flex; gap: 16px; flex-wrap: wrap; color: var(--text2); font-size: 12.5px; margin-bottom: 14px; }}
   .hero-meta span {{ display: flex; align-items: center; gap: 4px; }}
-  .tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 8px; }}
-  .tag {{ background: #1e2d4a; color: #60a5fa; border: 1px solid #1d4ed8;
-    padding: 3px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; }}
-  .source-link {{ color: var(--accent); text-decoration: none; font-size: 12px; font-weight: 600; }}
+  .tags {{ display: flex; gap: 6px; flex-wrap: wrap; margin-top: 10px; }}
+  .tag {{ background: #fff; color: var(--accent); border: 1px solid #ffd4b3;
+    padding: 4px 12px; border-radius: 999px; font-size: 11.5px; font-weight: 700; }}
+  .source-link {{ color: var(--accent); text-decoration: none; font-size: 12.5px; font-weight: 700; }}
   .source-link:hover {{ text-decoration: underline; }}
 
-  .section {{ background: var(--surface); border: 1px solid var(--border);
-    border-radius: 12px; padding: 20px 24px; margin-bottom: 14px; }}
-  .section.na-section {{ opacity: 0.5; }}
-  .section-header {{ display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }}
-  .section-icon {{ font-size: 18px; }}
-  .section-title {{ font-size: 13px; font-weight: 700; text-transform: uppercase;
-    letter-spacing: 1px; color: var(--text2); }}
-  .na-badge {{ background: #2a1a00; color: #f59e0b; border: 1px solid #78350f;
-    font-size: 9px; font-weight: 700; padding: 2px 7px; border-radius: 999px; }}
-  .na-text {{ color: var(--text2); font-style: italic; font-size: 12px; }}
-  .section-body p {{ color: var(--text); }}
+  .card-block {{
+    background: var(--surface); border: 1px solid var(--border);
+    border-radius: 16px; padding: 22px 26px; margin-bottom: 16px;
+  }}
+  .block-header {{ display: flex; align-items: center; gap: 10px; margin-bottom: 16px; }}
+  .block-icon {{ font-size: 19px; }}
+  .block-title {{ font-size: 12.5px; font-weight: 800; text-transform: uppercase;
+    letter-spacing: 1.2px; color: var(--text2); }}
 
-  ol.takeaway-list {{ padding-left: 20px; }}
-  ol.takeaway-list li {{ margin-bottom: 10px; color: var(--text); }}
-  .inferred-badge {{ background: #1c1400; color: var(--yellow); border: 1px solid #78350f;
-    font-size: 9px; padding: 1px 6px; border-radius: 4px; margin-left: 8px; vertical-align: middle; }}
+  /* TL;DR */
+  .tldr-block {{ background: linear-gradient(135deg, #fff9f0 0%, #fffef8 100%); border: 1px solid #ffe9c7; }}
+  .tldr-list {{ list-style: none; }}
+  .tldr-list li {{ position: relative; padding-left: 26px; margin-bottom: 10px; font-weight: 600; font-size: 15.5px; color: #1f1c19; }}
+  .tldr-list li::before {{ content: '→'; position: absolute; left: 0; color: var(--accent); font-weight: 900; }}
 
-  ol.action-list {{ padding-left: 20px; }}
-  ol.action-list li {{ margin-bottom: 8px; color: var(--text); padding-left: 4px; }}
+  /* Top Insights */
+  .insight-card {{ display: flex; gap: 14px; padding: 14px 0; border-bottom: 1px solid #f5efe4; }}
+  .insight-card:last-child {{ border-bottom: none; }}
+  .insight-num {{ flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--accent), var(--accent2)); color: #fff;
+    display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 14px; }}
+  .insight-text {{ font-weight: 600; color: #1f1c19; margin-bottom: 4px; }}
+  .insight-why {{ font-size: 12.5px; color: var(--text2); }}
 
-  .critique-grid {{ display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; }}
-  @media(max-width:600px) {{ .critique-grid {{ grid-template-columns: 1fr; }} }}
-  .critique-col {{ background: var(--surface2); border-radius: 8px; padding: 12px; }}
-  .critique-col.strengths {{ border-top: 3px solid var(--green); }}
-  .critique-col.weaknesses {{ border-top: 3px solid var(--red); }}
-  .critique-col.missing {{ border-top: 3px solid var(--yellow); }}
-  .col-label {{ font-size: 11px; font-weight: 700; margin-bottom: 8px; color: var(--text2); }}
-  .critique-col ul {{ padding-left: 16px; }}
-  .critique-col ul li {{ margin-bottom: 6px; font-size: 13px; }}
+  /* Best Example */
+  .example-box {{ background: var(--amber-bg); border: 1px solid var(--amber-border);
+    border-radius: 12px; padding: 18px 20px; }}
+  .example-title {{ font-weight: 800; color: #92400e; font-size: 13px; text-transform: uppercase;
+    letter-spacing: 0.5px; margin-bottom: 8px; }}
+  .example-story {{ font-style: italic; color: #451a03; line-height: 1.7; }}
 
-  .fw-name {{ display: inline-block; background: var(--accent); color: #fff;
-    font-size: 11px; font-weight: 700; padding: 3px 12px; border-radius: 999px; margin-bottom: 10px; }}
+  /* Do This */
+  .do-list {{ list-style: none; }}
+  .do-list li {{ display: flex; align-items: flex-start; gap: 10px; margin-bottom: 10px; font-weight: 500; }}
+  .check {{ flex-shrink: 0; width: 20px; height: 20px; border-radius: 6px; background: var(--green-bg);
+    color: var(--green); display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 900; border: 1px solid #bbf7d0; }}
 
-  ul.examples-list, ul.lim-list, ul.bp-list {{ padding-left: 20px; }}
-  ul.examples-list li, ul.lim-list li, ul.bp-list li {{ margin-bottom: 8px; }}
+  /* The Catch */
+  .catch-block {{ background: #fff7ed; border: 1px solid #fed7aa; }}
+  .catch-text {{ color: #7c2d12; font-weight: 500; }}
 
-  .use-case-grid {{ display: flex; flex-wrap: wrap; gap: 8px; }}
-  .use-case-chip {{ background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 8px; padding: 8px 14px; font-size: 12px; color: var(--text); }}
+  .empty-note {{ color: var(--text2); font-style: italic; font-size: 13px; }}
 
-  ul.summary-list {{ padding-left: 20px; }}
-  ul.summary-list li {{ margin-bottom: 8px; color: var(--text); line-height: 1.6; }}
+  /* Extra sections */
+  .quote-block {{ font-style: italic; font-size: 16px; color: #1f1c19; padding: 8px 0 8px 16px;
+    border-left: 3px solid var(--accent); }}
+  .stat-grid {{ display: flex; flex-wrap: wrap; gap: 10px; }}
+  .stat-chip {{ background: #fff5eb; border: 1px solid #ffe0c2; border-radius: 10px;
+    padding: 10px 16px; font-weight: 700; font-size: 13.5px; color: #1f1c19; }}
+  .extra-list {{ padding-left: 20px; }}
+  .extra-list li {{ margin-bottom: 8px; }}
 
-  .footer {{ text-align: center; color: var(--text2); font-size: 11px; margin-top: 32px; padding-top: 16px;
-    border-top: 1px solid var(--border); }}
+  .footer {{ text-align: center; color: var(--text2); font-size: 11.5px; margin-top: 28px; }}
 </style>
 </head>
 <body>
@@ -256,19 +208,34 @@ def render_card(card: dict) -> str:
   <div class="tags">{tags_html}</div>
 </div>
 
-{render_section("summary", "Executive Summary", "📌", summary_html)}
-{render_section("takeaways", "Top 5 Takeaways", "🏆", takeaways_html)}
-{render_section("actionables", "Actionables", "⚡", actions_html)}
-{render_section("critique", "Critique", "🔍", critique_html)}
-{render_section("framework", "Thinking Framework", "🧠", fw_html, na=fw_na)}
-{render_section("insights", "Knowledge Insights", "💡", insights_html, na=insights_na)}
-{render_section("examples", "Examples & Stories", "📖", examples_html, na=examples_na)}
-{render_section("limitations", "Limitations & Challenges", "🚧", lim_html, na=lim_na)}
-{render_section("practices", "Best Practices", "✅", bp_html, na=bp_na)}
-{render_section("usecases", "Use Cases", "🎯", uc_html, na=uc_na)}
-{render_section("ahead", "What's Ahead", "🔭", ahead_html, na=ahead_na)}
+<div class="card-block tldr-block">
+  <div class="block-header"><span class="block-icon">⚡</span><span class="block-title">TL;DR</span></div>
+  <ul class="tldr-list">{tldr_html}</ul>
+</div>
 
-<div class="footer">Generated by Knowledge Repository Pipeline · {date}</div>
+<div class="card-block">
+  <div class="block-header"><span class="block-icon">🎯</span><span class="block-title">Top Insights</span></div>
+  {insights_html}
+</div>
+
+<div class="card-block">
+  <div class="block-header"><span class="block-icon">📖</span><span class="block-title">Best Example</span></div>
+  {example_html}
+</div>
+
+<div class="card-block">
+  <div class="block-header"><span class="block-icon">✅</span><span class="block-title">Do This</span></div>
+  {do_html}
+</div>
+
+{extra_html}
+
+<div class="card-block catch-block">
+  <div class="block-header"><span class="block-icon">⚠️</span><span class="block-title">The Catch</span></div>
+  <div class="catch-text">{catch}</div>
+</div>
+
+<div class="footer">Generated by Knowledge Repository · {date}</div>
 </body>
 </html>"""
 

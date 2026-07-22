@@ -30,11 +30,8 @@ for folder in sorted(entries_dir, key=lambda x: x.path, reverse=True):
         date = meta.get("date_processed", "")
         source_type = meta.get("source_type", "article")
         tags = meta.get("tags", [])
-        summary_raw = card.get("executive_summary", {}).get("content", "")
-        if isinstance(summary_raw, list):
-            summary = summary_raw[0][:200] if summary_raw else ""
-        else:
-            summary = str(summary_raw)[:200]
+        tldr = card.get("tldr", [])
+        summary = (tldr[0] if tldr else "")[:200]
 
         icons = {"youtube": "▶️", "podcast": "🎙️", "article": "📰",
                  "case_study": "📋", "report": "📊", "text": "📝"}

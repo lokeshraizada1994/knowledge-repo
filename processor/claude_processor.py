@@ -5,20 +5,19 @@ from datetime import datetime
 
 client = anthropic.Anthropic(api_key=os.getenv("ANTHROPIC_API_KEY"))
 
-SYSTEM_PROMPT = """You are a knowledge extraction expert. You receive raw content from articles, YouTube videos, podcasts, case studies, and consulting reports.
+SYSTEM_PROMPT = """You are a master synthesizer. You receive raw content from articles, YouTube videos, podcasts, case studies, and consulting reports.
 
-Your job is to produce a structured knowledge card in valid JSON format.
+Your job: extract the MAXIMUM value in the FEWEST words. Someone should be able to read your output in under 90 seconds and walk away with everything worth remembering. No filler, no restating the obvious, no academic throat-clearing.
 
-STRICT RULES — READ CAREFULLY:
-1. NEVER infer, hallucinate, or use prior knowledge to fill fields. Every field must be grounded ONLY in what is explicitly present in the source content provided.
-2. For contextual fields (thinking_framework, examples_and_stories, limitations_and_challenges, best_practices, use_cases, whats_ahead, knowledge_insights): if the source does not explicitly discuss this topic, set content to "N/A — [specific reason, e.g. 'motivational content with no frameworks presented']". Do NOT infer or fabricate.
-3. For Top 5 Takeaways: extract from actual source content only. If source has fewer than 5 clear points, produce only what exists and pad remaining with "N/A — insufficient content in source" rather than inferring.
-4. For Critique: give YOUR honest assessment of the source quality and usefulness — this is the ONE field where your own judgment is welcome.
-5. Executive Summary: write as 3-5 crisp bullet points covering WHAT was discussed, KEY argument/finding, and WHY it matters. No paragraph prose.
-6. Never leave any field blank — either real extracted content or "N/A — [reason]".
-7. Be specific — quote or closely paraphrase the source. Avoid generic filler sentences.
+STRICT RULES:
+1. NEVER infer, hallucinate, or use prior knowledge. Every word must be grounded in the source content provided.
+2. Be ruthless about signal over noise — if the source has 10 pages, distill it to what actually matters. Prefer sharp, specific, quotable phrasing over vague summary language.
+3. If something genuinely does not exist in the source (e.g. no real-world example given), set that field's "present" to false with a one-line reason. Do NOT pad or invent to fill a template.
+4. "the_catch" is the one place for your own honest judgment — a limitation, blind spot, or reason to be skeptical.
+5. FLEXIBLE STRUCTURE — this is important: beyond the core fields below, if the source contains something genuinely notable that doesn't fit the standard fields (a striking statistic, a contrarian take, a useful framework/model, a checklist, a quote worth remembering, a prediction, a comparison table, numbers/data worth highlighting), add it as an entry in "extra_sections". Only add a section if it's genuinely additive — do not force one into existence. Zero, one, or several extra_sections is fine. Each source is different; let the structure follow the content, not the other way around.
+6. Tags: 3-6 short, specific tags (not generic like "business" or "technology" alone).
 
-OUTPUT FORMAT (strict JSON, no markdown around it):
+OUTPUT FORMAT (strict JSON, no markdown fences around it):
 {
   "metadata": {
     "title": "string",
@@ -29,60 +28,37 @@ OUTPUT FORMAT (strict JSON, no markdown around it):
     "estimated_duration": "string or null",
     "tags": ["tag1", "tag2", "tag3"]
   },
-  "executive_summary": {
-    "content": ["Bullet 1 — what this source is about", "Bullet 2 — core argument or finding", "Bullet 3 — why it matters or who it's for", "Bullet 4 — optional key context", "Bullet 5 — optional standout insight"],
-    "needs_visual": false
+  "tldr": ["One crisp sentence — what this is", "One crisp sentence — the core claim or finding", "One crisp sentence — why it matters / who should care"],
+  "top_insights": [
+    {"insight": "Sharp, specific, one-sentence insight", "why_it_matters": "One short phrase — the payoff of knowing this"},
+    {"insight": "...", "why_it_matters": "..."},
+    {"insight": "...", "why_it_matters": "..."}
+  ],
+  "best_example": {
+    "present": true,
+    "title": "Short label for the example/case/story (e.g. company name or scenario)",
+    "story": "2-4 sentences telling the single most memorable, concrete example/case/story/data-point from the source — something worth referencing later.",
+    "reason_absent": null
   },
-  "top_5_takeaways": {
-    "content": [
-      {"point": "Takeaway 1", "inferred": false},
-      {"point": "Takeaway 2", "inferred": false},
-      {"point": "Takeaway 3", "inferred": false},
-      {"point": "Takeaway 4", "inferred": false},
-      {"point": "Takeaway 5", "inferred": false}
-    ],
-    "needs_visual": false
+  "do_this": {
+    "present": true,
+    "actions": ["Specific, concrete action 1", "Specific, concrete action 2"],
+    "reason_absent": null
   },
-  "actionables": {
-    "content": ["Action 1", "Action 2", "Action 3"],
-    "needs_visual": false
-  },
-  "critique": {
-    "strengths": ["strength 1", "strength 2"],
-    "weaknesses": ["weakness 1", "weakness 2"],
-    "missing": ["what's missing 1"],
-    "needs_visual": false
-  },
-  "thinking_framework": {
-    "content": "string or N/A — reason",
-    "framework_name": "string or null",
-    "needs_visual": true
-  },
-  "knowledge_insights": {
-    "content": "string or N/A — reason",
-    "needs_visual": false
-  },
-  "examples_and_stories": {
-    "content": ["example 1", "example 2"] or "N/A — reason",
-    "needs_visual": false
-  },
-  "limitations_and_challenges": {
-    "content": ["limitation 1", "limitation 2"] or "N/A — reason",
-    "needs_visual": false
-  },
-  "best_practices": {
-    "content": ["practice 1", "practice 2"] or "N/A — reason",
-    "needs_visual": false
-  },
-  "use_cases": {
-    "content": ["use case 1", "use case 2"] or "N/A — reason",
-    "needs_visual": false
-  },
-  "whats_ahead": {
-    "content": "string or N/A — reason",
-    "needs_visual": false
-  }
-}"""
+  "the_catch": "One sharp sentence: the key limitation, risk, or reason to be skeptical of this source's claims — your honest take.",
+  "extra_sections": [
+    {
+      "emoji": "📊",
+      "title": "Short section title (e.g. 'By The Numbers', 'Contrarian Take', 'The Framework')",
+      "type": "bullets|quote|stat",
+      "content": ["item 1", "item 2"]
+    }
+  ]
+}
+
+If best_example.present is false, set story to null and give reason_absent (e.g. "Source is purely theoretical with no case studies or examples").
+If do_this.present is false, set actions to [] and give reason_absent (e.g. "Source is informational/reflective with no actionable steps").
+extra_sections can be an empty array [] if nothing extra is genuinely worth adding — do not force it."""
 
 
 def process_content(content: dict) -> dict:
@@ -94,9 +70,7 @@ def process_content(content: dict) -> dict:
     duration = content.get("duration")
 
     # Truncate content to avoid Claude's response being cut off.
-    # 20k chars of input leaves plenty of room for the JSON output.
     if len(raw_content) > 20000:
-        # Keep first 15k (intro/body) + last 5k (conclusions) for reports
         raw_content = (
             raw_content[:15000]
             + "\n\n[... middle section truncated ...]\n\n"
@@ -112,7 +86,7 @@ DURATION: {duration or "Unknown"}
 CONTENT:
 {raw_content}
 
-Extract the full knowledge card from this content following all rules."""
+Distill this into the crisp, high-signal knowledge card described in the system prompt."""
 
     response = client.messages.create(
         model="claude-sonnet-4-6",
@@ -123,22 +97,18 @@ Extract the full knowledge card from this content following all rules."""
 
     raw_json = response.content[0].text.strip()
 
-    # Strip markdown code fences if present
     if raw_json.startswith("```"):
         raw_json = raw_json.split("\n", 1)[1]
         raw_json = raw_json.rsplit("```", 1)[0]
 
-    # Guard against truncated JSON (stop_reason == max_tokens)
-    stop_reason = response.stop_reason
-    if stop_reason == "max_tokens":
+    if response.stop_reason == "max_tokens":
         raise ValueError(
             "Claude response was truncated — content may be too long. "
-            f"stop_reason={stop_reason}"
+            f"stop_reason={response.stop_reason}"
         )
 
     knowledge_card = json.loads(raw_json)
 
-    # Ensure metadata fields are set
     knowledge_card["metadata"]["date_processed"] = datetime.utcnow().strftime("%Y-%m-%d")
     if not knowledge_card["metadata"].get("source_url"):
         knowledge_card["metadata"]["source_url"] = source_url
