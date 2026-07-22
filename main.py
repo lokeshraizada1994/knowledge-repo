@@ -90,6 +90,16 @@ def webhook():
         except Exception as sb_err:
             print(f"[Pipeline] Supabase skipped: {sb_err}")
 
+        try:
+            from writers.insights_generator import generate_insights
+            generate_insights(
+                github_username=os.getenv("GITHUB_USERNAME"),
+                github_repo=os.getenv("GITHUB_REPO", "knowledge-repo"),
+                github_token=os.getenv("GITHUB_TOKEN"),
+            )
+        except Exception as insights_err:
+            print(f"[Pipeline] Insights regeneration skipped: {insights_err}")
+
         return jsonify({
             "status": "success",
             "title": knowledge_card.get("metadata", {}).get("title"),

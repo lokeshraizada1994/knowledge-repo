@@ -46,6 +46,11 @@ OUTPUT FORMAT (strict JSON, no markdown fences around it):
     "reason_absent": null
   },
   "the_catch": "One sharp sentence: the key limitation, risk, or reason to be skeptical of this source's claims — your honest take.",
+  "flashcards": [
+    {"question": "A specific, testable question about a fact/number/claim from the source", "answer": "The precise answer, short"},
+    {"question": "...", "answer": "..."},
+    {"question": "...", "answer": "..."}
+  ],
   "extra_sections": [
     {
       "emoji": "📊",
@@ -58,7 +63,8 @@ OUTPUT FORMAT (strict JSON, no markdown fences around it):
 
 If best_example.present is false, set story to null and give reason_absent (e.g. "Source is purely theoretical with no case studies or examples").
 If do_this.present is false, set actions to [] and give reason_absent (e.g. "Source is informational/reflective with no actionable steps").
-extra_sections can be an empty array [] if nothing extra is genuinely worth adding — do not force it."""
+extra_sections can be an empty array [] if nothing extra is genuinely worth adding — do not force it.
+flashcards: exactly 3 question/answer pairs testing recall of the most important specific facts, numbers, or claims — designed for spaced repetition, so keep answers short and precise (a number, a name, a one-line definition)."""
 
 
 def process_content(content: dict) -> dict:
