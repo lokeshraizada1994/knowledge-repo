@@ -1,5 +1,5 @@
 // ─── CONFIG ────────────────────────────────────────────────────────────────
-var WEBHOOK_URL = "https://web-production-b4f63.up.railway.app/webhook";
+var WEBHOOK_URL = "https://knowledge-repo-b4rj.onrender.com/webhook";
 var WEBHOOK_SECRET = "YOUR_WEBHOOK_SECRET";  // keep your actual secret here
 var LABEL_NAME = "knowledge-processed";
 // ───────────────────────────────────────────────────────────────────────────
